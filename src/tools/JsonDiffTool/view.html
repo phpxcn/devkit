@@ -1,0 +1,46 @@
+<div class="actions-bar">
+    <button class="btn btn-primary" id="btn-compare-json">开始对比</button>
+    <button class="btn" id="btn-swap-json">左右互换</button>
+    <button class="btn" id="btn-clear-diff">全部清空</button>
+</div>
+
+<div class="tool-panel" style="flex-grow: 0; height: 350px; margin-bottom: 20px;">
+    <div class="editor-container">
+        <label class="label">原始 JSON (Left)</label>
+        <div class="textarea-wrapper" style="flex-grow: 1;">
+            <textarea id="json-left" placeholder="输入原始 JSON..."></textarea>
+        </div>
+    </div>
+    
+    <div class="editor-container">
+        <label class="label">对比 JSON (Right)</label>
+        <div class="textarea-wrapper" style="flex-grow: 1;">
+            <textarea id="json-right" placeholder="输入对比 JSON..."></textarea>
+        </div>
+    </div>
+</div>
+
+<div class="editor-container" style="margin-top: 20px; flex-grow: 1; display: flex; flex-direction: column;">
+    <label class="label">对比结果分析</label>
+    <div id="diff-results" class="tree-view" style="flex-grow: 1; overflow-y: auto; background-color: var(--input-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 15px;">
+        <div style="color: var(--text-dim); text-align: center; padding-top: 40px;">
+            请在上方输入两个 JSON 对象并点击“开始对比”
+        </div>
+    </div>
+</div>
+
+<style>
+    .diff-item {
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin-bottom: 2px;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+    }
+    .diff-added { background-color: rgba(34, 197, 94, 0.15); border-left: 3px solid #22c55e; }
+    .diff-removed { background-color: rgba(239, 68, 68, 0.15); border-left: 3px solid #ef4444; }
+    .diff-changed { background-color: rgba(234, 179, 8, 0.1); border-left: 3px solid #eab308; }
+    .diff-path { color: var(--text-dim); margin-right: 8px; font-weight: 600; }
+    .diff-val-old { color: #ef4444; text-decoration: line-through; margin-right: 10px; }
+    .diff-val-new { color: #22c55e; font-weight: 600; }
+</style>

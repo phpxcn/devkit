@@ -1,0 +1,43 @@
+<div class="actions-bar">
+    <button class="btn btn-primary" id="btn-compare-text">开始对比</button>
+    <button class="btn" id="btn-swap-text">交换内容</button>
+    <button class="btn" id="btn-clear-text">清空</button>
+</div>
+
+<div class="tool-panel" style="flex-grow: 0; height: 350px; margin-bottom: 20px;">
+    <div class="editor-container">
+        <label class="label">原始内容</label>
+        <div class="textarea-wrapper" style="flex-grow: 1;">
+            <textarea id="text-left" placeholder="粘贴或输入原始文本..."></textarea>
+        </div>
+    </div>
+    
+    <div class="editor-container">
+        <label class="label">对比内容</label>
+        <div class="textarea-wrapper" style="flex-grow: 1;">
+            <textarea id="text-right" placeholder="粘贴或输入对比文本..."></textarea>
+        </div>
+    </div>
+</div>
+
+<div class="editor-container" style="flex-grow: 1; display: flex; flex-direction: column;">
+    <label class="label">对比差异 (左右对比视图)</label>
+    <div id="text-diff-results" style="flex-grow: 1; overflow-y: auto; background-color: var(--input-bg); border-radius: 8px; border: 1px solid var(--border-color); font-family: var(--font-mono); font-size: 0.85rem;">
+        <div style="color: var(--text-dim); text-align: center; padding-top: 60px;">
+            请在上方输入文本并点击“开始对比”以查看双栏对比结果
+        </div>
+    </div>
+</div>
+
+<style>
+    .split-row { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid rgba(255, 255, 255, 0.03); min-height: 24px; line-height: 24px; }
+    .split-pane { padding: 0 10px; white-space: pre-wrap; word-break: break-all; position: relative; }
+    .split-pane::before { content: attr(data-ln); position: absolute; left: -35px; width: 30px; text-align: right; color: var(--text-dim); font-size: 0.7rem; opacity: 0.5; pointer-events: none;}
+    
+    .pane-left { border-right: 1px solid var(--border-color); }
+    .row-removed .pane-left { background-color: rgba(239, 68, 68, 0.15); color: #ef4444; }
+    .row-added .pane-right { background-color: rgba(34, 197, 94, 0.15); color: #22c55e; }
+    .empty-pane { background-color: rgba(0, 0, 0, 0.05); }
+    .diff-header { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-secondary); font-weight: bold; font-size: 0.75rem; color: var(--text-dim); }
+    .header-item { padding: 8px 10px; border-bottom: 1px solid var(--border-color); }
+</style>

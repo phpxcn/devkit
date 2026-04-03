@@ -26,6 +26,16 @@ const ToolRegistry = {
         view: './src/tools/JsonTool/view.html',
         module: './src/tools/JsonTool/module.js'
     },
+    'json-diff-tool': {
+        name: 'JSON 对比',
+        view: './src/tools/JsonDiffTool/view.html',
+        module: './src/tools/JsonDiffTool/module.js'
+    },
+    'text-diff-tool': {
+        name: '文本对比',
+        view: './src/tools/TextDiffTool/view.html',
+        module: './src/tools/TextDiffTool/module.js'
+    },
     'table-tool': {
         name: '表格转换',
         view: './src/tools/TableTool/view.html',
