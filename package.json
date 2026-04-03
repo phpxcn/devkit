@@ -14,7 +14,8 @@
   "author": "phpxcn <https://gitee.com/phpxcn>",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^28.3.3"
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3"
   },
   "dependencies": {
     "js-yaml": "^4.1.1",
@@ -24,5 +25,35 @@
     "papaparse": "^5.5.3",
     "pngjs": "^7.0.0",
     "xlsx": "^0.18.5"
+  },
+  "build": {
+    "appId": "com.phpxcn.devkit",
+    "productName": "DevKit",
+    "copyright": "Copyright © 2026 phpxcn",
+    "directories": {
+      "output": "release"
+    },
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": ["dmg", "zip"],
+      "icon": "assets/icons/icon.icns"
+    },
+    "win": {
+      "target": ["nsis", "zip"],
+      "icon": "assets/icons/icon.png"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "assets/icons/icon.png",
+      "category": "Development"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "installerIcon": "assets/icons/icon.png",
+      "uninstallerIcon": "assets/icons/icon.png",
+      "shortcutName": "DevKit"
+    }
   }
 }

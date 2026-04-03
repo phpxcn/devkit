@@ -1,0 +1,41 @@
+name: DevKit-Build-Pipeline
+
+# 触发条件：发送到 main 分支的 push 请求
+on:
+  push:
+    branches:
+      - main
+
+# 工作流执行的任务
+jobs:
+  build_job:
+    name: Build DevKit Apps
+    # Gitee Go 默认通常是 Linux 环境
+    # 如果要打包 mac，建议使用 Gitee Go 的 macOS 自托管 Agent
+    runs-on: gitee-go-linux-agent 
+    
+    steps:
+      - name: Checkout Repository
+        uses: gitee-go/checkout@v1
+      
+      - name: Setup Node.js
+        uses: gitee-go/node-setup@v1
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: |
+          npm install
+          
+      - name: Build Windows and Linux Pack
+        # 使用 electron-builder 直接打包为 win 和 linux
+        # 在 Linux agent 上可以通过 wine 进行 win 打包（需 Agent 预装 wine）
+        run: |
+          npm run build-win
+          npm run build-linux
+
+      - name: Archiving Artifacts
+        uses: gitee-go/artifact-upload@v1
+        with:
+          name: DevKit-Release
+          path: release/*.exe,release/*.AppImage,release/*.deb
