@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工坊 - DevKit 开发者工具箱</title>
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo-container">
+      <img src="assets/icons/icon.png" alt="DevKit" class="logo-icon">
+      <span class="logo-text">工坊</span>
+    </div>
+    
+    <nav>
+      <div class="nav-item active" data-page="json-tool">
+        <span class="nav-icon">{ }</span>
+        <span>JSON 格式化</span>
+      </div>
+      
+      <div class="nav-item" data-page="table-tool">
+        <span class="nav-icon">田</span>
+        <span>表格转换</span>
+      </div>
+      
+      <div class="nav-item" data-page="timestamp-tool">
+        <span class="nav-icon">🕒</span>
+        <span>时间戳转换</span>
+      </div>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="top-bar">
+      <div class="page-title" id="page-title">JSON 格式化</div>
+      <div class="top-actions"></div>
+    </header>
+
+    <section id="json-tool" class="tool-page active">
+      <div class="actions-bar">
+        <button class="btn btn-primary" id="btn-format">格式化</button>
+        <button class="btn" id="btn-compress">压缩</button>
+        <button class="btn" id="btn-clear-json">清空</button>
+        <button class="btn" id="btn-copy-json">复制结果</button>
+      </div>
+
+      <div class="tool-panel">
+        <div class="editor-container">
+          <label class="label">JSON 输入 (实时高亮展示)</label>
+          <div class="textarea-wrapper" style="flex-grow: 1;">
+            <div id="json-input-h" class="highlight-layer"></div>
+            <textarea id="json-input" placeholder="请在这里粘贴 JSON 字符串..."></textarea>
+          </div>
+        </div>
+        
+        <div class="editor-container" style="display: flex; flex-direction: column;">
+          <label class="label">JSON 结构编辑器 (同框富文本视图)</label>
+          <div id="unified-json-editor" class="tree-view" style="flex-grow: 1; background-color: #0b0c14; border-radius: 8px; border: 1px solid var(--border-color); overflow-y: auto; padding: 20px;">
+             <!-- 这里将渲染带折叠和编辑功能的代码树 -->
+             <div style="color: #64748b; padding: 20px;">等待数据录入...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="table-tool" class="tool-page">
+      <!-- 上卡片：在线表格编辑器 -->
+      <div class="tool-card">
+         <div class="card-header-fused">
+           <div class="header-title"><i class="icon-table"></i> 在线表格编辑器 <span id="table-stats" class="stats-badge">0 x 0</span></div>
+         </div>
+         <div class="card-body-fused grid-layout">
+           <div class="action-sidebar">
+             <div class="action-grid">
+               <button class="grid-btn" id="btn-undo-f" title="撤销"><i class="icon">↶</i><span>撤销</span></button>
+               <button class="grid-btn" id="btn-redo-f" title="重做"><i class="icon">↷</i><span>重做</span></button>
+               <button class="grid-btn" id="btn-transpose-f" title="转置"><i class="icon">⇄</i><span>转置</span></button>
+               <button class="grid-btn" id="btn-clear-f" title="清空"><i class="icon">🗑</i><span>清空</span></button>
+               <button class="grid-btn" id="btn-remove-dup-f" title="去重"><i class="icon">≡</i><span>去重</span></button>
+               <button class="grid-btn" id="btn-upper-f" title="转大写"><i class="icon">Ａ</i><span>转大写</span></button>
+               <button class="grid-btn" id="btn-lower-f" title="转小写"><i class="icon">ａ</i><span>转小写</span></button>
+               <button class="grid-btn" id="btn-import-f" title="导入"><i class="icon">📥</i><span>导入</span></button>
+               <button class="grid-btn" id="btn-header-f" title="设首行为标题"><i class="icon">Ｈ</i><span>设标题</span></button>
+             </div>
+             <div class="search-replace-f">
+                <input type="text" placeholder="查找内容..." class="f-input">
+                <input type="text" placeholder="替换为..." class="f-input">
+                <button class="btn btn-primary w-100" style="margin-top: 8px;">全部替换</button>
+             </div>
+           </div>
+           <div class="grid-preview-container">
+              <div id="table-grid-view" class="table-scroll-area">
+                <!-- 动态网格将渲染于此 -->
+                <div class="empty-state">请导入文件或者粘贴数据到下方预览框</div>
+              </div>
+           </div>
+         </div>
+      </div>
+
+      <!-- 下卡片：表格生成器 -->
+      <div class="tool-card">
+        <div class="card-header-fused">
+          <div class="header-title"><i class="icon-gen"></i> 表格生成器</div>
+          <div class="header-actions">
+            <!-- <button class="btn btn-secondary btn-sm">请我喝咖啡 ☕️</button> -->
+            <button class="btn btn-secondary btn-sm" id="btn-copy-table">复制到剪贴板</button>
+            <button class="btn btn-primary btn-sm" id="btn-export-f">下载文件</button>
+          </div>
+        </div>
+        <div class="format-tabs" id="table-format-tabs">
+          <div class="tab-item active" data-format="csv">CSV</div>
+          <div class="tab-item" data-format="json">JSON</div>
+          <div class="tab-item" data-format="xlsx">Excel</div>
+          <div class="tab-item" data-format="md">Markdown</div>
+          <div class="tab-item" data-format="sql">SQL</div>
+          <div class="tab-item" data-format="html">HTML</div>
+          <div class="tab-item" data-format="xml">XML</div>
+          <div class="tab-item" data-format="yaml">YAML</div>
+          <div class="tab-item" data-format="ascii">ASCII</div>
+          <div class="tab-item" data-format="latex">LaTeX</div>
+        </div>
+        <div class="generator-workspace">
+           <div class="config-panel" id="table-config-container">
+              <!-- 各格式特定的配置项将由 JS 动态注入于此 -->
+              <div class="empty-state">选择格式以查看配置</div>
+           </div>
+           <div class="result-area">
+              <textarea id="table-input" class="f-textarea" placeholder="转换结果将在此实时显示..."></textarea>
+           </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="timestamp-tool" class="tool-page">
+       <div class="timestamp-grid">
+         <div class="result-card">
+           <label class="label">当前时间戳 (实时)</label>
+           <div class="input-group" style="margin-top: 10px;">
+             <span id="live-ts-s" style="font-size: 1.5rem; font-weight: bold; color: var(--accent-hover);">0</span>
+             <span class="label">秒</span>
+             <span id="live-ts-ms" style="font-size: 1.2rem; margin-left: 20px; color: var(--text-dim);">0</span>
+             <span class="label">毫秒</span>
+           </div>
+         </div>
+
+         <div class="result-card">
+           <label class="label">时间戳 ↔ 可读日期 (双向自动识别)</label>
+           <div class="input-group" style="margin-top: 15px; flex-direction: column; align-items: stretch; gap: 15px;">
+             <div style="display: flex; gap: 10px;">
+               <input type="text" id="ts-input" placeholder="输入时间戳或日期字符串...">
+               <button class="btn btn-primary" id="btn-convert-ts" style="padding: 0 24px;">转换</button>
+             </div>
+             
+             <div id="ts-results" style="display: flex; flex-direction: column; gap: 8px;">
+                <div class="ts-item" style="display: flex; align-items: center; background: rgba(255,255,255,0.03); padding: 10px 16px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                  <span class="ts-label" style="width: 110px; color: #94a3b8; font-size: 0.85rem; flex-shrink: 0;">时间戳 (秒)</span>
+                  <span class="ts-value" id="res-ts-s" style="flex: 1; color: var(--accent-light); font-family: var(--font-mono); font-size: 0.95rem; margin: 0 15px; word-break: break-all;">-</span>
+                  <button class="btn copy-ts-btn" data-target="res-ts-s" title="复制" style="padding: 4px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 1.1rem; flex-shrink: 0;">📋</button>
+                </div>
+                <div class="ts-item" style="display: flex; align-items: center; background: rgba(255,255,255,0.03); padding: 10px 16px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                  <span class="ts-label" style="width: 110px; color: #94a3b8; font-size: 0.85rem; flex-shrink: 0;">时间戳 (毫秒)</span>
+                  <span class="ts-value" id="res-ts-ms" style="flex: 1; color: var(--accent-light); font-family: var(--font-mono); font-size: 0.95rem; margin: 0 15px; word-break: break-all;">-</span>
+                  <button class="btn copy-ts-btn" data-target="res-ts-ms" title="复制" style="padding: 4px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 1.1rem; flex-shrink: 0;">📋</button>
+                </div>
+                <div class="ts-item" style="display: flex; align-items: center; background: rgba(255,255,255,0.03); padding: 10px 16px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                  <span class="ts-label" style="width: 110px; color: #94a3b8; font-size: 0.85rem; flex-shrink: 0;">ISO 格式</span>
+                  <span class="ts-value" id="res-iso" style="flex: 1; color: #e2e8f0; font-family: var(--font-mono); font-size: 0.95rem; margin: 0 15px; word-break: break-all;">-</span>
+                  <button class="btn copy-ts-btn" data-target="res-iso" title="复制" style="padding: 4px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 1.1rem; flex-shrink: 0;">📋</button>
+                </div>
+                <div class="ts-item" style="display: flex; align-items: center; background: rgba(255,255,255,0.03); padding: 10px 16px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                  <span class="ts-label" style="width: 110px; color: #94a3b8; font-size: 0.85rem; flex-shrink: 0;">本地时间</span>
+                  <span class="ts-value" id="res-local" style="flex: 1; color: #e2e8f0; font-family: var(--font-mono); font-size: 0.95rem; margin: 0 15px; word-break: break-all;">-</span>
+                  <button class="btn copy-ts-btn" data-target="res-local" title="复制" style="padding: 4px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 1.1rem; flex-shrink: 0;">📋</button>
+                </div>
+                <div class="ts-item" style="display: flex; align-items: center; background: rgba(255,255,255,0.03); padding: 10px 16px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                  <span class="ts-label" style="width: 110px; color: #94a3b8; font-size: 0.85rem; flex-shrink: 0;">UTC 时间</span>
+                  <span class="ts-value" id="res-utc" style="flex: 1; color: #e2e8f0; font-family: var(--font-mono); font-size: 0.95rem; margin: 0 15px; word-break: break-all;">-</span>
+                  <button class="btn copy-ts-btn" data-target="res-utc" title="复制" style="padding: 4px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 1.1rem; flex-shrink: 0;">📋</button>
+                </div>
+                <div class="ts-item" style="display: flex; align-items: center; background: rgba(255,255,255,0.02); padding: 8px 16px; border-radius: 6px;">
+                  <span class="ts-label" style="width: 110px; color: #64748b; font-size: 0.8rem; flex-shrink: 0;">识别类型</span>
+                  <span class="ts-value" id="res-type" style="flex: 1; color: #64748b; font-size: 0.8rem; margin: 0 15px;">-</span>
+                </div>
+             </div>
+           </div>
+         </div>
+       </div>
+    </section>
+  </main>
+
+  <script src="src/renderer.js"></script>
+</body>
+</html>
