@@ -114,7 +114,7 @@ body {
 /* 主内容容器 */
 .main-content {
   flex-grow: 1;
-  height: 90vh;
+  height: 100vh;
   position: relative;
   overflow-y: auto; /* 这里是真正的全局滚动起点 */
   display: flex;
