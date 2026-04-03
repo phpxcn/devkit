@@ -36,6 +36,11 @@ const ToolRegistry = {
         view: './src/tools/TextDiffTool/view.html',
         module: './src/tools/TextDiffTool/module.js'
     },
+    'password-tool': {
+        name: '随机密码生成',
+        view: './src/tools/PasswordTool/view.html',
+        module: './src/tools/PasswordTool/module.js'
+    },
     'table-tool': {
         name: '表格转换',
         view: './src/tools/TableTool/view.html',

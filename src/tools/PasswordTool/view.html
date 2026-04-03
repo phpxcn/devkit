@@ -1,0 +1,59 @@
+<div class="actions-bar">
+  <button class="btn btn-primary" id="btn-gen-pwd">生成新密码</button>
+  <button class="btn" id="btn-copy-pwd">复制密码</button>
+</div>
+
+<div class="tool-panel">
+  <!-- 左侧控制面板 -->
+  <div class="editor-container" style="padding: 20px;">
+    <label class="label">生成选项</label>
+    
+    <div class="config-item" style="margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+        <span>密码长度: <b id="pwd-len-val">16</b></span>
+      </div>
+      <input type="range" id="pwd-len" min="4" max="64" value="16" style="width: 100%; accent-color: var(--accent-color);">
+    </div>
+
+    <div class="checkbox-group" style="display: flex; flex-direction: column; gap: 12px;">
+      <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+        <input type="checkbox" id="pwd-upper" checked> 包含大写字母 (A-Z)
+      </label>
+      <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+        <input type="checkbox" id="pwd-lower" checked> 包含小写字母 (a-z)
+      </label>
+      <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+        <input type="checkbox" id="pwd-numbers" checked> 包含数字 (0-9)
+      </label>
+      <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+        <input type="checkbox" id="pwd-symbols" > 包含特殊符号 (!@#$%...)
+      </label>
+    </div>
+  </div>
+
+  <!-- 右侧结果展示 -->
+  <div class="editor-container" style="display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(0,0,0,0.1); border-radius: 12px; border: 1px dashed var(--border-color);">
+    <label class="label" style="position: absolute; top: 15px; left: 20px;">生成结果</label>
+    
+    <div id="pwd-display" style="font-family: var(--font-mono); font-size: 2rem; color: var(--accent-color); word-break: break-all; text-align: center; padding: 40px; letter-spacing: 2px; text-shadow: 0 0 15px rgba(124, 58, 237, 0.2);">
+      点击生成按钮
+    </div>
+    
+    <div id="pwd-strength" style="width: 60%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; position: relative; margin-top: -20px;">
+        <div id="pwd-strength-bar" style="height: 100%; width: 0%; transition: all 0.4s ease; border-radius: 2px;"></div>
+    </div>
+    <div id="pwd-strength-text" style="font-size: 0.7rem; margin-top: 8px; color: var(--text-dim);">强度未评估</div>
+  </div>
+</div>
+
+<style>
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent-color);
+  }
+  .config-item span {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+  }
+</style>
