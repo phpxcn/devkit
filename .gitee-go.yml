@@ -1,17 +1,15 @@
 name: DevKit-Build-Pipeline
 
-# 触发条件：发送到 main 分支的 push 请求
+# 触发条件：发送到主分支的 push 请求
 on:
   push:
     branches:
       - main
+      - master  # 兼容某些仓库的主分支名是 master
 
-# 工作流执行的任务
 jobs:
   build_job:
     name: Build DevKit Apps
-    # Gitee Go 默认通常是 Linux 环境
-    # 如果要打包 mac，建议使用 Gitee Go 的 macOS 自托管 Agent
     runs-on: gitee-go-linux-agent 
     
     steps:
@@ -23,19 +21,39 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Dependencies
+      - name: Path Debug & Auto Sync
+        id: path_sync
+        # 有时仓库被拉到了子文件夹，这里我们找出 package.json 并在对应位置安装
         run: |
+          echo "==== 开始定位 package.json ===="
+          PKG_PATH=$(find . -name "package.json" -not -path "*/node_modules/*" | head -n 1)
+          if [ -z "$PKG_PATH" ]; then
+            echo "错误: 找不到 package.json 文件！当前目录预览:"
+            ls -R
+            exit 1
+          fi
+          
+          # 获取 package.json 所在的目录
+          BASE_DIR=$(dirname "$PKG_PATH")
+          echo "发现项目根目录: $BASE_DIR"
+          
+          # 动态进入目录并执行安装
+          cd "$BASE_DIR"
           npm install
           
-      - name: Build Windows and Linux Pack
-        # 使用 electron-builder 直接打包为 win 和 linux
-        # 在 Linux agent 上可以通过 wine 进行 win 打包（需 Agent 预装 wine）
-        run: |
+          # 执行打包 (针对 Windows 和 Linux)
+          echo "==== 开始打包流程 ===="
           npm run build-win
           npm run build-linux
+          
+          # 将打包后的文件移动到顶层目录的 release 文件夹，方便后续存档
+          mkdir -p $GITEE_WORKSPACE/release-dist
+          cp -r release/*.exe $GITEE_WORKSPACE/release-dist/ || true
+          cp -r release/*.AppImage $GITEE_WORKSPACE/release-dist/ || true
+          cp -r release/*.deb $GITEE_WORKSPACE/release-dist/ || true
 
       - name: Archiving Artifacts
         uses: gitee-go/artifact-upload@v1
         with:
-          name: DevKit-Release
-          path: release/*.exe,release/*.AppImage,release/*.deb
+          name: DevKit-Build-Artifacts
+          path: release-dist/*
