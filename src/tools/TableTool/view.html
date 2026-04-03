@@ -3,7 +3,7 @@
      <div class="card-header-fused" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;">
        <div class="header-left" style="display: flex; align-items: center; gap: 12px;">
          <div class="header-title" style="margin: 0; font-size: 1.05rem; white-space: nowrap; flex-shrink: 0;"><i class="icon-source" style="margin-right: 4px;"></i> 数据源</div>
-         <select id="source-data-format" class="f-select-modern" style="padding: 4px 24px 4px 12px; height: 32px; font-size: 0.9rem; border: none; color: var(--accent-light); font-weight: bold; background: rgba(255,255,255,0.05); border-radius: 6px; cursor: pointer; color: #3b82f6;">
+         <select id="source-data-format" class="f-select-modern" style="padding: 4px 24px 4px 12px; height: 32px; font-size: 0.9rem; border: none; font-weight: bold; background: rgba(255,255,255,0.05); border-radius: 6px; cursor: pointer; color: var(--accent-color);">
             <option value="json">JSON 数组</option>
             <option value="xlsx">Excel</option>
             <option value="csv">CSV</option>
@@ -22,7 +22,7 @@
        </div>
      </div>
      <div class="card-body-fused" style="padding: 16px;">
-        <textarea id="source-input-editor" class="f-textarea" placeholder="在此粘贴需要处理的源数据..." style="width: 100%; min-height: 220px; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; background: #0b0c14; padding: 16px; box-sizing: border-box; resize: vertical; color: #cbd5e1; font-family: var(--font-mono); font-size: 0.85rem; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);"></textarea>
+        <textarea id="source-input-editor" class="f-textarea" placeholder="在此粘贴需要处理的源数据..." style="width: 100%; min-height: 220px; outline: none;"></textarea>
      </div>
   </div>
 
@@ -38,13 +38,13 @@
            <button class="grid-btn" id="btn-redo-f" title="重做"><i class="icon">↷</i><span>重做</span></button>
            <button class="grid-btn" id="btn-transpose-f" title="转置"><i class="icon">⇄</i><span>转置</span></button>
 
-           <button class="grid-btn" id="btn-clear-f" title="清空" style="color: #ef4444;"><i class="icon" style="color: #ef4444;">🗑</i><span style="color: #ef4444;">清空</span></button>
+           <button class="grid-btn" id="btn-clear-f" title="清空" style="color: var(--danger);"><i class="icon" style="color: var(--danger);">🗑</i><span style="color: var(--danger);">清空</span></button>
            <button class="grid-btn" id="btn-rm-blank-rows" title="删除空行"><i class="icon">✂</i><span>删除空行</span></button>
            <button class="grid-btn" id="btn-remove-dup-f" title="去重"><i class="icon">≡</i><span>去重</span></button>
 
-           <button class="grid-btn" id="btn-upper-f" title="转大写"><i class="icon" style="color: #3b82f6;">Ａ</i><span>转大写</span></button>
-           <button class="grid-btn" id="btn-lower-f" title="转小写"><i class="icon" style="color: #3b82f6;">ａ</i><span>转小写</span></button>
-           <button class="grid-btn" id="btn-capitalize-f" title="首字母大写"><i class="icon" style="color: #3b82f6;">Ｔ</i><span>首字母大写</span></button>
+           <button class="grid-btn" id="btn-upper-f" title="转大写"><i class="icon" style="color: var(--accent-color);">Ａ</i><span>转大写</span></button>
+           <button class="grid-btn" id="btn-lower-f" title="转小写"><i class="icon" style="color: var(--accent-color);">ａ</i><span>转小写</span></button>
+           <button class="grid-btn" id="btn-capitalize-f" title="首字母大写"><i class="icon" style="color: var(--accent-color);">Ｔ</i><span>首字母大写</span></button>
          </div>
          <div class="search-replace-f" style="margin-top: 16px;">
             <input type="text" id="search-input" placeholder="查找替换 (支持正则)" class="f-input" style="font-size: 0.8rem; margin-bottom: 6px; width: 100%;">
@@ -66,7 +66,6 @@
     <div class="card-header-fused">
       <div class="header-title"><i class="icon-gen"></i> 表格生成器</div>
       <div class="header-actions">
-        <!-- <button class="btn btn-secondary btn-sm">请我喝咖啡 ☕️</button> -->
         <button class="btn btn-secondary btn-sm" id="btn-copy-table">复制到剪贴板</button>
         <button class="btn btn-primary btn-sm" id="btn-export-f">下载文件</button>
       </div>
@@ -92,8 +91,8 @@
              </div>
           </div>
        </div>
-       <div class="result-area">
-          <textarea id="table-input" class="f-textarea" placeholder="转换结果将在此实时显示..."></textarea>
+       <div class="result-area" style="padding: 0;">
+          <textarea id="table-input" class="f-textarea" placeholder="转换结果将在此实时显示..." style="height: 100%; min-height: 480px;"></textarea>
        </div>
     </div>
   </div>

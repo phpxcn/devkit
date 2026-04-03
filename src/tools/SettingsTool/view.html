@@ -1,0 +1,82 @@
+<div class="settings-container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+  
+  <!-- 1. 个性化设置 -->
+  <div class="tool-card" style="margin-bottom: 24px;">
+    <div class="card-header-fused" style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <div class="header-title" style="font-size: 1.1rem; font-weight: 600;"><i class="icon" style="margin-right:8px;">🎨</i> 个性化设置</div>
+    </div>
+    <div class="card-body-fused" style="padding: 24px;">
+        
+        <div class="setting-item" style="margin-bottom: 30px;">
+            <div class="setting-label" style="font-weight: 600; margin-bottom: 12px; font-size: 0.95rem;">系统皮肤切换</div>
+            <div class="theme-picker" style="display: flex; gap: 20px;">
+                <!-- 每一项代表一个皮肤 -->
+                <div class="skin-opt active" data-skin="default" title="深邃蓝 (默认)">
+                    <div style="background:#0f111a; border:1px solid #7c3aed; width:50px; height:50px; border-radius:12px; cursor:pointer; position:relative;">
+                        <div style="position:absolute; right:4px; bottom:4px; width:12px; height:12px; background:#7c3aed; border-radius:50%;"></div>
+                    </div>
+                    <div style="font-size:0.7rem; text-align:center; margin-top:6px; color:var(--text-secondary);">深邃蓝</div>
+                </div>
+                
+                <div class="skin-opt" data-skin="light" title="纯白极简">
+                    <div style="background:#f8fafc; border:1px solid #ddd; width:50px; height:50px; border-radius:12px; cursor:pointer; position:relative;">
+                        <div style="position:absolute; right:4px; bottom:4px; width:12px; height:12px; background:#3b82f6; border-radius:50%;"></div>
+                    </div>
+                    <div style="font-size:0.7rem; text-align:center; margin-top:6px; color:var(--text-secondary);">纯白</div>
+                </div>
+
+                <div class="skin-opt" data-skin="midnight" title="暗夜紫影">
+                    <div style="background:#050508; border:1px solid #9333ea; width:50px; height:50px; border-radius:12px; cursor:pointer; position:relative;">
+                        <div style="position:absolute; right:4px; bottom:4px; width:12px; height:12px; background:#9333ea; border-radius:50%;"></div>
+                    </div>
+                    <div style="font-size:0.7rem; text-align:center; margin-top:6px; color:var(--text-secondary);">暗夜</div>
+                </div>
+
+                <div class="skin-opt" data-skin="cyberpunk" title="赛博朋克">
+                    <div style="background:#0a0a0c; border:1px solid #ff00ff; width:50px; height:50px; border-radius:12px; cursor:pointer; position:relative;">
+                        <div style="position:absolute; right:4px; bottom:4px; width:12px; height:12px; background:#00ffff; border-radius:50%;"></div>
+                    </div>
+                    <div style="font-size:0.7rem; text-align:center; margin-top:6px; color:var(--text-secondary);">赛博</div>
+                </div>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 12px;">皮肤将改变整个界面的背景颜色、文字色调和边框风格。</div>
+        </div>
+
+        <div class="setting-item">
+            <div class="setting-label" style="font-weight: 600; margin-bottom: 12px; font-size: 0.95rem;">全局字体偏好</div>
+            <select id="font-select" class="f-select-modern" style="max-width: 300px; height: 42px; font-size: 0.9rem;">
+                <option value="system">系统默认 (Sans-Serif)</option>
+                <option value="mono">极客风 (Monospace / Fira Code)</option>
+                <option value="serif">经典排版 (Serif)</option>
+                <option value="rounded">圆润体 (Rounded)</option>
+            </select>
+            <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 10px;">更改全局文本显示的字体，建议代码编辑使用 Monospace。</div>
+        </div>
+    </div>
+  </div>
+
+  <!-- 2. 关于 DevKit -->
+  <div class="tool-card">
+    <div class="card-header-fused" style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <div class="header-title" style="font-size: 1.1rem; font-weight: 600;"><i class="icon" style="margin-right:8px;">ℹ️</i> 关于 DevKit</div>
+    </div>
+    <div class="card-body-fused" style="padding: 24px; text-align: center;">
+        <img src="assets/icons/icon.png" style="width: 80px; height: 80px; margin-bottom: 16px; filter: drop-shadow(0 0 10px var(--accent-color));" alt="Logo">
+        <h2 style="font-size: 1.4rem; margin-bottom: 6px;">DevKit 工具工坊</h2>
+        <div style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px;">版本 v1.2.0 (Stable)</div>
+        
+        <div style="background: rgba(255,255,255,0.02); border-radius: 12px; padding: 20px; text-align: left; line-height: 1.6; font-size: 0.9rem; color: #cbd5e1; border: 1px solid rgba(255,255,255,0.05);">
+            <p>DevKit 是一款专为开发者设计的离线全能工具箱。我们致力于提供最流畅的交互体验和最专业的转换精度。所有操作均在本地完成，保护您的数据安全。</p>
+            <div style="margin-top: 20px; color: var(--text-dim); font-size: 0.75rem;">
+                © 2026 DevKit Official. 由极客团队驱动开发。
+            </div>
+        </div>
+        
+        <div style="margin-top: 24px; display: flex; justify-content: center; gap: 16px;">
+            <button class="btn btn-secondary btn-sm" id="btn-check-update">检查更新</button>
+            <button class="btn btn-secondary btn-sm" onclick="require('electron').shell.openExternal('https://gitee.com/phpxcn/devkit')">访问 Gitee 仓库</button>
+        </div>
+    </div>
+  </div>
+
+</div>

@@ -1,34 +1,70 @@
-/* 
-  开发者工具箱 - 全局样式系统 
-  核心理念：深色模式、磨砂玻璃质感、高对比度
-*/
-
 :root {
-  /* 调色盘 */
+  /* 基础变量 (Default Skin: 深邃蓝深色模式) */
   --bg-primary: #0f111a;
   --bg-secondary: #1a1c2e;
   --bg-sidebar: #131422;
   --bg-card: #20243b;
-
+  --dash-grad-start: #1e2033;
+  --dash-grad-end: #15172b;
+  --input-bg: #0b0c14;
   --text-primary: #e2e8f0;
   --text-secondary: #94a3b8;
   --text-dim: #64748b;
-
-  --accent-color: #7c3aed; /* 活力紫 */
+  --accent-color: #7c3aed;
   --accent-hover: #8b5cf6;
-  --accent-secondary: #3b82f6; /* 深天蓝 */
-
-  --danger: #ef4444;
-  --success: #10b981;
-  --warning: #f59e0b;
-
   --border-color: rgba(255, 255, 255, 0.08);
-  --border-active: rgba(124, 58, 237, 0.4);
-
-  --font-family: 'SF Pro Text', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: 'ui-monospace', 'SFMono-Regular', 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'Cascadia Code', 'Fira Code', monospace;
+  --font-family: 'SF Pro Text', 'Inter', -apple-system, sans-serif;
+  --font-mono: 'ui-monospace', monospace;
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* 皮肤隔离控制 */
+body.skin-light {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-sidebar: #f1f5f9;
+  --bg-card: #ffffff;
+  --dash-grad-start: #ffffff;
+  --dash-grad-end: #f1f5f9;
+  --input-bg: #f8fafc;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-dim: #94a3b8;
+  --accent-color: #3b82f6;
+  --border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.skin-midnight {
+  --bg-primary: #050508;
+  --bg-secondary: #0a0b14;
+  --bg-sidebar: #07080f;
+  --bg-card: #11131f;
+  --dash-grad-start: #0a0b14;
+  --dash-grad-end: #050508;
+  --input-bg: #000000;
+  --accent-color: #9333ea;
+}
+
+body.skin-cyberpunk {
+  --bg-primary: #0a0a0c;
+  --bg-secondary: #121217;
+  --bg-sidebar: #0d0d0f;
+  --bg-card: #1a1a23;
+  --dash-grad-start: #121217;
+  --dash-grad-end: #0a0a0c;
+  --input-bg: #000000;
+  --accent-color: #ff00ff;
+  --text-primary: #00ffff;
+  --text-secondary: #ff00ff;
+  --border-color: rgba(0, 255, 255, 0.2);
+}
+
+.nav-item-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 15px 24px;
+}
+
 
 * {
   box-sizing: border-box;
@@ -76,7 +112,7 @@ body {
   font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: 1px;
-  background: linear-gradient(135deg, #fff 30%, var(--accent-color));
+  background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-color));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -96,13 +132,13 @@ body {
 }
 
 .nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.03);
-  color: #fff;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
 }
 
 .nav-item.active {
   background-color: rgba(124, 58, 237, 0.1);
-  color: #fff;
+  color: var(--text-primary);
   border-left-color: var(--accent-color);
 }
 
@@ -144,18 +180,18 @@ body {
 
 /* 顶部栏 */
 .top-bar {
-  padding: 38px 30px 0 30px; /* 顶部同样增加 38px 避让红绿灯并增加拖动高度 */
+  padding: 38px 30px 0 30px; 
   height: 80px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--border-color);
-  background: rgba(15, 17, 26, 0.8);
-  backdrop-filter: blur(8px);
+  background: var(--bg-primary);
+  backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   z-index: 100;
-  -webkit-app-region: drag; /* 顶部标题栏可拖拽 */
+  -webkit-app-region: drag; 
 }
 
 .page-title {
@@ -234,13 +270,13 @@ body {
 }
 
 .label:hover {
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .textarea-wrapper {
   flex-grow: 1;
   position: relative;
-  background-color: #0b0c14;
+  background-color: var(--input-bg);
   border-radius: 8px;
   border: 1px solid var(--border-color);
   overflow: hidden;
@@ -262,7 +298,7 @@ body {
   font-family: var(--font-mono);
   font-size: 0.9rem;
   line-height: 1.5;
-  color: #a5b4fc;
+  color: var(--text-primary);
   overflow: hidden;
 }
 
@@ -272,7 +308,7 @@ textarea {
   height: 100%;
   background: transparent;
   border: none;
-  color: #a5b4fc; /* 恢复默认可见颜色 */
+  color: var(--text-primary); /* 恢复默认可见颜色 */
   font-family: var(--font-mono);
   font-size: 0.9rem;
   padding: 15px;
@@ -288,7 +324,7 @@ textarea {
 /* 仅在存在高亮层时使文字透明 (JSON 专用) */
 .textarea-wrapper:has(.highlight-layer) textarea {
   color: transparent !important;
-  caret-color: #fff;
+  caret-color: var(--text-primary);
 }
 
 /* JSON 各类型颜色定义 */
@@ -350,7 +386,7 @@ textarea {
   align-items: center;
 }
 
-.header-title { font-weight: 600; font-size: 0.95rem; color: #fff; }
+.header-title { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); }
 .stats-badge { font-size: 0.8rem; color: var(--accent-color); margin-left: 10px; font-weight: normal; }
 
 .header-actions {
@@ -405,26 +441,26 @@ textarea {
 
 .search-replace-f { display: flex; flex-direction: column; gap: 8px; }
 .f-input { 
-  background: #0b0c14; border: 1px solid var(--border-color); border-radius: 6px; 
-  padding: 8px 10px; color: #fff; font-size: 0.85rem; outline: none; 
+  background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; 
+  padding: 8px 10px; color: var(--text-primary); font-size: 0.85rem; outline: none; 
 }
 
 .grid-preview-container { 
   flex-grow: 1; 
-  background: #0b0c14; 
+  background: var(--input-bg); 
   position: relative; 
   height: 100%;
   overflow: auto; /* 恢复内部网格滚动 */
 }
 .table-scroll-area { width: 100%; padding: 10px; } 
 
-.empty-state { color: #4b5563; display: flex; align-items: center; justify-content: center; height: 100%; font-size: 0.9rem; }
+.empty-state { color: var(--text-dim); display: flex; align-items: center; justify-content: center; height: 100%; font-size: 0.9rem; }
 
 /* 生成器增强 */
 .format-tabs {
   display: flex;
   padding: 0 15px;
-  background: rgba(255, 255, 255, 0.01);
+  background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   overflow-x: auto;
 }
@@ -439,7 +475,7 @@ textarea {
   white-space: nowrap;
 }
 
-.tab-item:hover { color: #fff; }
+.tab-item:hover { color: var(--text-primary); }
 .tab-item.active { 
   color: var(--accent-color); 
   border-bottom-color: var(--accent-color); 
@@ -450,9 +486,9 @@ textarea {
   display: flex; 
   align-items: stretch; /* 让左右撑开对齐 */
   height: 520px; 
-  background: #0b0c14; /* 这里的颜色是大背景基调 */
+  background: var(--input-bg); 
   overflow: hidden;
-  border-top: 1px solid rgba(255,255,255,0.05);
+  border-top: 1px solid var(--border-color);
 }
 
 .result-area {
@@ -614,18 +650,18 @@ textarea {
     border: 1px solid rgba(148, 163, 184, 0.4);
     border-radius: 50%;
     font-size: 8px; margin-left: 4px;
-    color: #94a3b8; cursor: help;
+    color: var(--text-dim); cursor: help;
     flex-shrink: 0;
 }
 
 /* 现代感输入控件：极简深海版 */
 .f-select-modern, .f-input-modern {
     background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     height: 32px;
     padding: 0 8px;
-    color: #fff;
+    color: var(--text-primary);
     font-size: 0.75rem;
     outline: none;
     transition: all 0.2s;
@@ -665,14 +701,14 @@ textarea {
 
 .config-desc-text {
     font-size: 0.8rem;
-    color: #94a3b8;
+    color: var(--text-dim);
     line-height: 1.4;
     margin: 0;
 }
 
 .result-area { 
   flex-grow: 1; 
-  background: #0b0c14; 
+  background: var(--input-bg); 
   height: 100%;
   overflow: auto; /* 允许代码区内部滚动 */
 }
@@ -682,7 +718,7 @@ textarea {
   background: transparent; 
   border: none; 
   padding: 20px; 
-  color: #a5b4fc; 
+  color: var(--text-primary); 
   font-family: var(--font-mono); 
   font-size: 0.9rem; 
   outline: none; 
@@ -691,11 +727,34 @@ textarea {
 }
 
 /* 简单的 HTML 表格样式 (用于网格预览) */
-.preview-table { border-collapse: collapse; width: 100%; font-size: 0.85rem; color: #d1d5db; }
-.preview-table th { background: #1f2937; position: sticky; top: -10px; z-index: 5; padding: 8px; border: 1px solid #374151; text-align: left; }
-.preview-table td { padding: 6px 8px; border: 1px solid #2d3748; }
-.preview-table tr:hover { background: rgba(255, 255, 255, 0.03); }
+.preview-table { border-collapse: collapse; width: 100%; font-size: 0.85rem; color: var(--text-secondary); }
+.preview-table th { background: var(--bg-sidebar); position: sticky; top: -10px; z-index: 5; padding: 10px 8px; border: 1px solid var(--border-color); text-align: left; color: var(--text-primary); }
+.preview-table td { padding: 8px; border: 1px solid var(--border-color); color: var(--text-secondary); }
+.preview-table tr:hover { background: rgba(128, 128, 128, 0.05); }
 
 @media (max-width: 1100px) {
   .tool-panel { grid-template-columns: 1fr; }
 }
+
+/* 全局滚动条样式适配皮肤 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-dim);
+}
+
+/* 选区颜色适配 */
+::selection { background: var(--accent-color); color: #fff; }
+

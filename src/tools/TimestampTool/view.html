@@ -1,15 +1,15 @@
 <!-- 1. 实时时间仪表盘 -->
-<div class="ts-dashboard-card" style="background: linear-gradient(145deg, #1e2033, #15172b); border-radius: 16px; padding: 30px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+<div class="ts-dashboard-card" style="background: linear-gradient(145deg, var(--dash-grad-start), var(--dash-grad-end)); border-radius: 16px; padding: 30px; border: 1px solid var(--border-color); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
   <div class="dashboard-info">
      <div style="font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; font-weight: 700;">🚀 当前 UTC / 本地时间戳</div>
      <div style="display: flex; align-items: baseline; gap: 4px;">
-       <span id="live-ts-s" style="font-size: 3.2rem; font-weight: 800; color: #fff; font-family: var(--font-mono); text-shadow: 0 0 20px rgba(124, 58, 237, 0.4);">0</span>
+       <span id="live-ts-s" style="font-size: 3.2rem; font-weight: 800; color: var(--text-primary); font-family: var(--font-mono); text-shadow: 0 0 20px rgba(124, 58, 237, 0.2);">0</span>
        <span id="live-ts-ms" style="font-size: 1.4rem; color: var(--accent-color); font-weight: 600; font-family: var(--font-mono); margin-left: 2px;">.000</span>
        <span style="font-size: 0.9rem; color: var(--text-dim); margin-left: 8px;">秒</span>
      </div>
   </div>
   <div class="dashboard-timezone" style="text-align: right;">
-     <div id="live-local-clock" style="font-size: 1.2rem; color: #e2e8f0; font-weight: 500; font-family: var(--font-mono); margin-bottom: 4px;">--:--:--</div>
+     <div id="live-local-clock" style="font-size: 1.2rem; color: var(--text-primary); font-weight: 500; font-family: var(--font-mono); margin-bottom: 4px;">--:--:--</div>
      <div style="font-size: 0.75rem; color: var(--text-dim);">本地时区 (GMT+8)</div>
   </div>
 </div>
@@ -17,53 +17,53 @@
 <!-- 2. 转换工具卡片 -->
 <div class="tool-card" style="padding: 24px;">
   <div style="margin-bottom: 24px;">
-     <label class="label" style="display: block; margin-bottom: 12px; font-size: 0.9rem; font-weight: 600; color: #fff;">
+     <label class="label" style="display: block; margin-bottom: 12px; font-size: 0.9rem; font-weight: 600; color: var(--text-primary);">
        <i class="icon-swap" style="margin-right: 6px; color: var(--accent-color);">🔄</i> 快捷转换 (双向自动识别)
      </label>
      <div class="ts-input-wrapper" style="display: flex; gap: 12px;">
        <input type="text" id="ts-input" placeholder="输入10/13位时间戳 或 日期字符串 (如 2024-01-01 12:00:00)..." 
-              style="flex: 1; padding: 14px 18px; background: #0b0c14; border: 1.5px solid rgba(255,255,255,0.08); border-radius: 12px; color: #fff; font-size: 1rem; outline: none; transition: border-color 0.2s;">
+              style="flex: 1; padding: 14px 18px; background: var(--input-bg); border: 1.5px solid var(--border-color); border-radius: 12px; color: var(--text-primary); font-size: 1rem; outline: none; transition: border-color 0.2s;">
        <button class="btn btn-primary" id="btn-convert-ts" style="min-width: 140px; height: 52px; border-radius: 12px; font-size: 1rem; justify-content: center; font-weight: 600;">立即转换</button>
      </div>
   </div>
   
   <!-- 3. 结果平铺网格 -->
   <div id="ts-results-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;">
-     <div class="ts-result-tile" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px;">
+     <div class="ts-result-tile" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
           <span style="font-size: 0.7rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase;">时间戳 (秒)</span>
           <button class="copy-ts-btn" data-target="res-ts-s" title="复制" style="background: none; border: none; font-size: 1rem; cursor: pointer; color: var(--text-dim);">📋</button>
         </div>
-        <div id="res-ts-s" style="font-family: var(--font-mono); font-size: 1.2rem; color: var(--accent-light); font-weight: 600;">-</div>
+        <div id="res-ts-s" style="font-family: var(--font-mono); font-size: 1.2rem; color: var(--accent-color); font-weight: 600;">-</div>
      </div>
 
-     <div class="ts-result-tile" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px;">
+     <div class="ts-result-tile" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
           <span style="font-size: 0.7rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase;">时间戳 (毫秒)</span>
           <button class="copy-ts-btn" data-target="res-ts-ms" title="复制" style="background: none; border: none; font-size: 1rem; cursor: pointer; color: var(--text-dim);">📋</button>
         </div>
-        <div id="res-ts-ms" style="font-family: var(--font-mono); font-size: 1.2rem; color: var(--accent-light); font-weight: 600;">-</div>
+        <div id="res-ts-ms" style="font-family: var(--font-mono); font-size: 1.2rem; color: var(--accent-color); font-weight: 600;">-</div>
      </div>
 
-     <div class="ts-result-tile" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; grid-column: span 2;">
+     <div class="ts-result-tile" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; grid-column: span 2;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
           <span style="font-size: 0.7rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase;">本地时间 / 可读日期转换</span>
           <button class="copy-ts-btn" data-target="res-local" title="复制" style="background: none; border: none; font-size: 1rem; cursor: pointer; color: var(--text-dim);">📋</button>
         </div>
-        <div id="res-local" style="font-family: var(--font-mono); font-size: 1.2rem; color: #fff; font-weight: 600;">-</div>
+        <div id="res-local" style="font-family: var(--font-mono); font-size: 1.2rem; color: var(--text-primary); font-weight: 600;">-</div>
      </div>
 
-     <div class="ts-result-tile" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; grid-column: span 2;">
+     <div class="ts-result-tile" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; grid-column: span 2;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
           <span style="font-size: 0.7rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase;">ISO 8601 标准格式</span>
           <button class="copy-ts-btn" data-target="res-iso" title="复制" style="background: none; border: none; font-size: 1rem; cursor: pointer; color: var(--text-dim);">📋</button>
         </div>
-        <div id="res-iso" style="font-family: var(--font-mono); font-size: 1.1rem; color: #94a3b8;">-</div>
+        <div id="res-iso" style="font-family: var(--font-mono); font-size: 1.1rem; color: var(--text-secondary);">-</div>
      </div>
 
-     <div style="grid-column: span 2; display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--text-dim); font-size: 0.8rem; padding: 10px; background: rgba(255,255,255,0.02); border-radius: 10px; margin-top: 8px;">
-        <span>类型: <strong id="res-type" style="color: var(--accent-light);">等待识别...</strong></span>
-        <div style="width: 1px; height: 12px; background: rgba(255,255,255,0.1);"></div>
+     <div style="grid-column: span 2; display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--text-dim); font-size: 0.8rem; padding: 10px; background: var(--bg-secondary); border-radius: 10px; margin-top: 8px;">
+        <span>类型: <strong id="res-type" style="color: var(--accent-color);">等待识别...</strong></span>
+        <div style="width: 1px; height: 12px; background: var(--border-color);"></div>
         <span id="res-utc" style="font-family: var(--font-mono);">UTC: --</span>
      </div>
   </div>

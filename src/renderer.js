@@ -35,8 +35,21 @@ const ToolRegistry = {
         name: '时间戳转换',
         view: './src/tools/TimestampTool/view.html',
         module: './src/tools/TimestampTool/module.js'
+    },
+    'settings-tool': {
+        name: '系统设置',
+        view: './src/tools/SettingsTool/view.html',
+        module: './src/tools/SettingsTool/module.js'
     }
 };
+
+// --- 初始化：应用持久化设置 ---
+try {
+    const settingsMod = require('./tools/SettingsTool/module');
+    if (settingsMod.applySavedSettings) settingsMod.applySavedSettings();
+} catch (e) {
+    console.warn('Initial settings apply failed:', e);
+}
 
 const activeContent = document.getElementById('active-tool-content');
 const pageTitleElem = document.getElementById('page-title');
@@ -85,7 +98,12 @@ navItems.forEach(item => {
     });
 });
 
-// 5. 初始化：载入默认页面 (通常是第一个)
+// --- 5. 监听原生系统菜单命令 ---
+ipcRenderer.on('open-settings', () => {
+    loadTool('settings-tool');
+});
+
+// 6. 初始化：载入默认页面 (通常是第一个)
 const initialPage = document.querySelector('.nav-item.active')?.dataset.page || 'json-tool';
 loadTool(initialPage);
 
