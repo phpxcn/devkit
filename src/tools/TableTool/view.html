@@ -84,9 +84,13 @@
       <div class="tab-item" data-format="latex">LaTeX</div>
     </div>
     <div class="generator-workspace">
-       <div class="config-panel" id="table-config-container">
-          <!-- 各格式特定的配置项将由 JS 动态注入于此 -->
-          <div class="empty-state">选择格式以查看配置</div>
+       <div class="config-panel">
+          <div id="table-config-list" style="flex: 1; overflow-y: auto; padding: 20px 16px;">
+             <!-- 各格式特定的配置项将由 JS 动态注入于此 -->
+             <div id="table-config-container">
+                <div class="empty-state">选择格式以查看配置</div>
+             </div>
+          </div>
        </div>
        <div class="result-area">
           <textarea id="table-input" class="f-textarea" placeholder="转换结果将在此实时显示..."></textarea>
