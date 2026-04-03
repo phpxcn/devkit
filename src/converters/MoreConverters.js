@@ -56,6 +56,34 @@ class SQLConverter {
 }
 
 class HTMLConverter {
+    static async import(htmlStr) {
+        const TableDataset = require('../models/TableDataset');
+        const ds = new TableDataset();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlStr, 'text/html');
+        const table = doc.querySelector('table') || doc.querySelector('.table-custom');
+        if (!table) throw new Error('未找到 HTML 表格');
+        
+        let rows = [];
+        if (table.tagName === 'TABLE') {
+            Array.from(table.rows).forEach(tr => {
+                rows.push(Array.from(tr.cells).map(c => c.textContent.trim()));
+            });
+        } else {
+            const divRows = table.querySelectorAll('.tr');
+            Array.from(divRows).forEach(tr => {
+                const cells = tr.querySelectorAll('.td, .th');
+                if (cells.length > 0) rows.push(Array.from(cells).map(c => c.textContent.trim()));
+            });
+        }
+        
+        if (rows.length > 0) {
+            ds.fromMatrix(rows, true);
+        }
+        ds.updateMetadata();
+        return ds;
+    }
+
     static export(dataset, options = {}) {
         const {
             escapeHtml = true,
@@ -117,6 +145,45 @@ class HTMLConverter {
 }
 
 class JSONConverter {
+    static async import(jsonStr) {
+        const TableDataset = require('../models/TableDataset');
+        const ds = new TableDataset();
+        try {
+            const obj = JSON.parse(jsonStr);
+            if (Array.isArray(obj)) {
+                 if (obj.length > 0 && typeof obj[0] === 'object' && !Array.isArray(obj[0])) {
+                      const headers = new Set();
+                      obj.forEach(row => {
+                          if (row && typeof row === 'object') {
+                              Object.keys(row).forEach(k => headers.add(k));
+                          }
+                      });
+                      ds.headers = Array.from(headers);
+                      ds.rows = obj.map(row => ds.headers.map(h => {
+                           let val = row ? row[h] : '';
+                           return val !== null && val !== undefined ? (typeof val === 'object' ? JSON.stringify(val) : String(val)) : '';
+                      }));
+                 } else if (obj.length > 0 && Array.isArray(obj[0])) {
+                      ds.fromMatrix(obj, true);
+                 } else {
+                      // single array
+                      ds.fromMatrix([obj], true);
+                 }
+            } else if (typeof obj === 'object') {
+                 // single object
+                 ds.headers = Object.keys(obj);
+                 ds.rows = [ds.headers.map(h => {
+                     let val = obj[h];
+                     return val !== null && val !== undefined ? (typeof val === 'object' ? JSON.stringify(val) : String(val)) : '';
+                 })];
+            }
+            ds.updateMetadata();
+            return ds;
+        } catch(e) {
+            throw new Error('解析 JSON 失败: ' + e.message);
+        }
+    }
+
     static export(dataset, options = {}) {
         const {
             dataFormat = 'Array of Objects',
@@ -172,6 +239,36 @@ class JSONConverter {
 }
 
 class XMLConverter {
+    static async import(xmlStr) {
+        const TableDataset = require('../models/TableDataset');
+        const ds = new TableDataset();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(xmlStr, 'text/xml');
+        if (doc.querySelector('parsererror')) throw new Error('XML 解析错误');
+        
+        const root = doc.documentElement;
+        if (!root) return ds;
+        const records = Array.from(root.children);
+        if (records.length === 0) return ds;
+        
+        if (records[0].attributes.length > 0 && records[0].children.length === 0) {
+            const headers = new Set();
+            records.forEach(r => Array.from(r.attributes).forEach(a => headers.add(a.name)));
+            ds.headers = Array.from(headers);
+            ds.rows = records.map(r => ds.headers.map(h => r.getAttribute(h) || ''));
+        } else {
+            const headers = new Set();
+            records.forEach(r => Array.from(r.children).forEach(c => headers.add(c.tagName)));
+            ds.headers = Array.from(headers);
+            ds.rows = records.map(r => ds.headers.map(h => {
+                const node = r.querySelector(h);
+                return node ? node.textContent : '';
+            }));
+        }
+        ds.updateMetadata();
+        return ds;
+    }
+
     static export(dataset, options = {}) {
         const {
             rootNode = 'dataset',
@@ -224,6 +321,25 @@ class XMLConverter {
 }
 
 class YAMLConverter {
+    static async import(yamlStr) {
+        const yaml = require('js-yaml');
+        const TableDataset = require('../models/TableDataset');
+        const ds = new TableDataset();
+        const obj = yaml.load(yamlStr);
+        if (Array.isArray(obj) && obj.length > 0) {
+            const headers = new Set();
+            obj.forEach(row => { if(row && typeof row==='object') Object.keys(row).forEach(k => headers.add(k)) });
+            ds.headers = Array.from(headers);
+            ds.rows = obj.map(row => ds.headers.map(h => {
+                const val = row[h];
+                return val !== null && val !== undefined ? (typeof val === 'object' ? JSON.stringify(val) : String(val)) : '';
+            }));
+            ds.updateMetadata();
+            return ds;
+        }
+        throw new Error('YAML 需为对象数组格式');
+    }
+
     static export(dataset, options = {}) {
         const yaml = require('js-yaml');
         const { style = 'block', quotes = 'none', indent = '2 spaces' } = options;
