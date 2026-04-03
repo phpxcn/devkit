@@ -1,65 +1,95 @@
 const { app, BrowserWindow, ipcMain, dialog, clipboard, Menu, shell } = require('electron');
 const path = require('path');
 
-let mainWindow;
+let mainWindow = null;
 
-// 配置应用名称，防止在 Mac 顶部菜单栏显示 Default "Electron"
+// 配置应用名称
 app.setName('DevKit');
 
-// 如果是 macOS，在开发环境下显式设置 Dock 图标
+// macOS Dock 图标适配
 if (process.platform === 'darwin') {
   app.dock.setIcon(path.join(__dirname, 'assets/icons/icon.png'));
 }
 
-function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    minWidth: 900,
-    minHeight: 600,
-    frame: true, // 使用标准框架，后续可改为无边框设计以提升颜值
-    titleBarStyle: 'hiddenInset',
-    icon: path.join(__dirname, 'assets/icons/icon.png'),
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      nodeIntegration: true,
-      contextIsolation: false,
-      sandbox: false
-    },
-    backgroundColor: '#0f111a' // 背景色预防白屏闪烁
+// --- 核心修复 1：单例锁 (避免多进程运行) ---
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  // 如果已经有一个实例，则直接自杀
+  app.quit();
+} else {
+  // 当第二个实例尝试启动时，强行聚焦主窗口
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
   });
 
-  // 设置“关于”面板信息
-  app.setAboutPanelOptions({
-    applicationName: 'DevKit',
-    applicationVersion: '1.2.0',
-    copyright: 'Copyright © 2026 phpxcn',
-    version: '1.2.0',
-    credits: 'A powerful toolbox for professional developers.',
-    authors: ['phpxcn'],
-    website: 'https://gitee.com/phpxcn/devkit',
-    iconPath: path.join(__dirname, 'assets/icons/icon.icns')
+  // --- 核心修复 2：单例窗口模式 (封装创建逻辑) ---
+  function createWindow() {
+    // 如果窗口已经存在，则直接聚焦并返回，杜绝双开
+    if (mainWindow !== null) {
+      mainWindow.focus();
+      return;
+    }
+
+    mainWindow = new BrowserWindow({
+      width: 1200,
+      height: 800,
+      minWidth: 900,
+      minHeight: 600,
+      frame: true,
+      titleBarStyle: 'hiddenInset',
+      icon: path.join(__dirname, 'assets/icons/icon.png'),
+      webPreferences: {
+        preload: path.join(__dirname, 'preload.js'),
+        nodeIntegration: true,
+        contextIsolation: false,
+        sandbox: false
+      },
+      backgroundColor: '#0f111a'
+    });
+
+    // 窗口关闭时显式置空引用，让 activate 生命周期判断更精准
+    mainWindow.on('closed', () => {
+      mainWindow = null;
+    });
+
+    // 关于面板
+    app.setAboutPanelOptions({
+      applicationName: 'DevKit',
+      applicationVersion: '1.2.0',
+      copyright: 'Copyright © 2026 phpxcn',
+      version: '1.2.0',
+      credits: '一个杂七杂八的工具包',
+      authors: ['phpxcn'],
+      website: 'https://gitee.com/phpxcn/devkit',
+      iconPath: path.join(__dirname, 'assets/icons/icon.icns')
+    });
+
+    mainWindow.loadFile('index.html');
+  }
+
+  // --- 统一生命周期管理 ---
+  app.whenReady().then(() => {
+    createWindow();
+    createMenu();
+
+    app.on('activate', () => {
+      // 在 macOS 上点击 Dock 图标时重新激活逻辑
+      if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
+      }
+    });
   });
 
-  mainWindow.loadFile('index.html');
-
-  // 这里的开发工具仅在开发环境打开
-  // mainWindow.webContents.openDevTools();
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit();
+  });
 }
 
-app.whenReady().then(() => {
-  createWindow();
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
-});
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
-});
-
-// 处理剪贴板事件
+// --- IPC 通信句柄 (保持原有逻辑) ---
 ipcMain.handle('write-clipboard', async (event, text) => {
   clipboard.writeText(text);
   return true;
@@ -69,7 +99,6 @@ ipcMain.handle('read-clipboard', async () => {
   return clipboard.readText();
 });
 
-// 处理本地文件对话框
 ipcMain.handle('show-open-dialog', async (event, options) => {
   return await dialog.showOpenDialog(mainWindow, options);
 });
@@ -78,25 +107,22 @@ ipcMain.handle('show-save-dialog', async (event, options) => {
   return await dialog.showSaveDialog(mainWindow, options);
 });
 
-// 处理外部链接打开
 ipcMain.on('open-external', (event, url) => {
   shell.openExternal(url);
 });
 
-// --- 创建系统菜单 ---
+// --- 系统菜单 (保持原有逻辑) ---
 function createMenu() {
-  const isMac = process.platform === 'darwin';
-  
   const template = [
-    ...(isMac ? [{
-      label: app.name,
+    ...(process.platform === 'darwin' ? [{
+      label: 'DevKit',
       submenu: [
         { label: '关于 DevKit', role: 'about' },
         { type: 'separator' },
         { 
           label: '偏好设置...', 
           accelerator: 'CmdOrCtrl+,', 
-          click: () => { mainWindow.webContents.send('open-settings'); } 
+          click: () => { if(mainWindow) mainWindow.webContents.send('open-settings'); } 
         },
         { type: 'separator' },
         { label: '服务', role: 'services' },
@@ -148,13 +174,3 @@ function createMenu() {
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 }
-
-// 在 app.whenReady() 中调用
-app.whenReady().then(() => {
-  createWindow();
-  createMenu();
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
-});

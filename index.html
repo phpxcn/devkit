@@ -7,6 +7,15 @@
   <link rel="stylesheet" href="src/styles.css">
 </head>
 <body>
+  <script>
+    // 立即应用持久化皮肤，防止闪烁
+    (function() {
+      const savedSkin = localStorage.getItem('devkit-skin');
+      if (savedSkin && savedSkin !== 'default') {
+        document.body.classList.add('skin-' + savedSkin);
+      }
+    })();
+  </script>
   <aside class="sidebar">
     <div class="logo-container">
       <img src="assets/icons/icon.png" alt="DevKit" class="logo-icon">

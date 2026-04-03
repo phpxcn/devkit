@@ -225,8 +225,9 @@ body {
 }
 
 .btn:hover {
-  background-color: #2d3253;
+  background-color: var(--bg-sidebar);
   transform: translateY(-1px);
+  color: var(--accent-color);
 }
 
 .btn-primary {

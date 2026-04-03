@@ -44,12 +44,8 @@ const ToolRegistry = {
 };
 
 // --- 初始化：应用持久化设置 ---
-try {
-    const settingsMod = require('./tools/SettingsTool/module');
-    if (settingsMod.applySavedSettings) settingsMod.applySavedSettings();
-} catch (e) {
-    console.warn('Initial settings apply failed:', e);
-}
+// (已移动到 index.html 内联脚本以获得更快的预加载体验)
+
 
 const activeContent = document.getElementById('active-tool-content');
 const pageTitleElem = document.getElementById('page-title');
@@ -68,7 +64,7 @@ async function loadTool(toolId) {
 
     try {
         // B. 加载 HTML 视图
-        const html = fs.readFileSync(path.join(process.cwd(), config.view), 'utf8');
+        const html = fs.readFileSync(path.join(__dirname, config.view), 'utf8');
         activeContent.innerHTML = html;
 
         // C. 更新 UI 状态
@@ -78,7 +74,7 @@ async function loadTool(toolId) {
         });
 
         // D. 加载并运行 JS 逻辑 (强制清除 Require 缓存以保证重新初始化)
-        const modulePath = path.resolve(process.cwd(), config.module);
+        const modulePath = path.resolve(__dirname, config.module);
         delete require.cache[require.resolve(modulePath)];
         const toolModule = require(modulePath);
         
