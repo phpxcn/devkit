@@ -1,53 +1,58 @@
 version: '1.0'
 name: DevKit-Build-Pipeline
+
+# 触发条件
 on:
   push:
     branches:
       - main
       - master
 
-# 使用 Gitee Go 原生 Task 语法，这是兼容性最强的方式
-tasks:
-  build_devkit:
-    name: 打包构建任务
-    runs-on: gitee-go-linux-agent
-    steps:
-      - checkout:
-          name: 拉取代码
-          
-      - nodejs_setup:
-          name: 配置 Node.js 环境
-          version: 18.x
-          
-      - shell@1.0:
-          name: 执行打包脚本
-          condition: always
-          script: |
-            # 1. 进入代码目录
-            cd $GITEE_WORKSPACE
-            
-            # 2. 修改 npm 镜像源 (国内打包必备，防超时)
-            npm config set registry https://registry.npmmirror.com
-            
-            # 3. 安装依赖
-            npm install
-            
-            # 4. 执行多平台打包
-            echo "==== 开始打包 Windows 版本 ===="
-            npm run build-win
-            
-            echo "==== 开始打包 Linux 版本 ===="
-            npm run build-linux
-            
-            # 5. 统一收集打包结果到 release-dist 文件夹
-            mkdir -p $GITEE_WORKSPACE/release-dist
-            cp -r release/*.exe $GITEE_WORKSPACE/release-dist/ 2>/dev/null || true
-            cp -r release/*.AppImage $GITEE_WORKSPACE/release-dist/ 2>/dev/null || true
-            cp -r release/*.deb $GITEE_WORKSPACE/release-dist/ 2>/dev/null || true
+# 流水线变量（解决 Electron 下载慢问题）
+variables:
+  ELECTRON_MIRROR: "https://npmmirror.com/mirrors/electron/"
 
-      - artifact_upload@1.0:
-          name: 上传打包结果
-          artifact_name: DevKit-Release-Build
-          # 归档路径 (相对于 $GITEE_WORKSPACE)
-          path: 
-            - release-dist/
+# 执行阶段
+stages:
+  - name: build
+    displayName: 构建打包阶段
+    strategy: naturally
+    steps:
+      - name: checkout
+        displayName: 拉取代码
+        checkout: self
+
+      - name: setup_nodejs
+        displayName: 配置 Node.js 环境
+        uses: nodejs@1.0
+        with:
+          version: 18.x
+
+      - name: build_packages
+        displayName: 执行打包脚本
+        script: |
+          # 设置 npm 镜像源
+          npm config set registry https://registry.npmmirror.com
+          
+          # 安装依赖
+          npm install
+          
+          # 执行打包
+          echo "==== 开始打包 Windows 版本 ===="
+          npm run build-win
+          
+          echo "==== 开始打包 Linux 版本 ===="
+          npm run build-linux
+          
+          # 收集产物
+          mkdir -p ./release-dist
+          cp -r release/*.exe ./release-dist/ 2>/dev/null || true
+          cp -r release/*.AppImage ./release-dist/ 2>/dev/null || true
+          cp -r release/*.deb ./release-dist/ 2>/dev/null || true
+
+      - name: upload_artifacts
+        displayName: 上传打包结果
+        uses: artifact@1.0
+        with:
+          name: DevKit-Release-Build
+          path: ./release-dist/
