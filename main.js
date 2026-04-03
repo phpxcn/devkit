@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, dialog, clipboard, Menu, shell } = require('electron');
 const path = require('path');
+const { autoUpdater } = require('electron-updater');
 
 let mainWindow = null;
 
@@ -9,6 +10,26 @@ app.setName('DevKit');
 // macOS Dock 图标适配
 if (process.platform === 'darwin') {
   app.dock.setIcon(path.join(__dirname, 'assets/icons/icon.png'));
+}
+
+/**
+ * 自动更新配置
+ */
+function setupAutoUpdater() {
+  autoUpdater.autoDownload = true; 
+  autoUpdater.autoInstallOnAppQuit = true; 
+
+  autoUpdater.on('update-downloaded', (info) => {
+    dialog.showMessageBox({
+      type: 'info',
+      title: '更新准备就绪',
+      message: `检测到新版本 ${info.version}，已下载完成。`,
+      detail: '是否现在重启并安装更新？',
+      buttons: ['下次启动时安装', '立即重启安装']
+    }).then(result => {
+      if (result.response === 1) autoUpdater.quitAndInstall();
+    });
+  });
 }
 
 // --- 核心修复 1：单例锁 (避免多进程运行) ---
@@ -69,10 +90,16 @@ if (!gotTheLock) {
     });
 
     mainWindow.loadFile('index.html');
+    
+    // 窗口加载后，如果是生产环境，检查更新
+    if (app.isPackaged) {
+      autoUpdater.checkForUpdatesAndNotify();
+    }
   }
 
   // --- 统一生命周期管理 ---
   app.whenReady().then(() => {
+    setupAutoUpdater();
     createWindow();
     createMenu();
 

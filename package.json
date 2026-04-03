@@ -41,6 +41,12 @@
     "directories": {
       "output": "release"
     },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://gitee.com/phpxcn/devkit/releases/download/v${version}/"
+      }
+    ],
     "mac": {
       "category": "public.app-category.developer-tools",
       "target": [
