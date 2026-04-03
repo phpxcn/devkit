@@ -1,0 +1,83 @@
+<!-- 顶部页签式选择 -->
+<div class="actions-bar" style="margin-bottom: 20px;">
+    <div class="crypto-tabs" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button class="btn btn-tab active" data-type="AES">AES</button>
+        <button class="btn btn-tab" data-type="DES">DES</button>
+        <button class="btn btn-tab" data-type="RC4">RC4</button>
+        <button class="btn btn-tab" data-type="TripleDES">TripleDES</button>
+        <button class="btn btn-tab" data-type="Rabbit">Rabbit</button>
+        <button class="btn btn-tab" data-type="MD5">MD5</button>
+        <button class="btn btn-tab" data-type="SHA256">SHA256</button>
+        <button class="btn btn-tab" data-type="Base64">Base64</button>
+        <button class="btn btn-tab" data-type="URL">URL</button>
+    </div>
+</div>
+
+<div class="crypto-main-layout" style="display: grid; grid-template-columns: 1fr 240px 1fr; gap: 20px; flex-grow: 1; height: 500px; margin-bottom: 30px;">
+    <!-- 左侧：输入 -->
+    <div class="editor-container" style="display: flex; flex-direction: column; height: 100%;">
+        <label class="label">输入内容 (明文/密文)</label>
+        <div class="textarea-wrapper" style="flex-grow: 1;">
+            <textarea id="crypto-input" placeholder="请在此输入待处理的内容..."></textarea>
+        </div>
+    </div>
+
+    <!-- 中间：控制台 -->
+    <div class="editor-container" style="height: 100%; display: flex; flex-direction: column;">
+        <label class="label">操作面板</label>
+        <div class="crypto-controls" style="flex-grow: 1; display: flex; flex-direction: column; gap: 20px; justify-content: center; padding: 25px; border-radius: 8px; border: 1px solid var(--border-color); box-sizing: border-box;">
+            <div id="crypto-config-key" class="config-item">
+                <label class="label" style="margin-bottom: 8px; display: block; ">加密密钥 (Key)</label>
+                <input type="text" id="crypto-key" class="f-input-modern" placeholder="密钥/偏移量...">
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <button class="btn btn-primary" id="btn-encrypt" style="width: 100%; justify-content: center; height: 45px; font-weight: 700; font-size: 0.9rem;">
+                    加密执行
+                </button>
+                <button class="btn" id="btn-decrypt" style="width: 100%; justify-content: center; height: 45px; font-size: 0.9rem;">
+                    解密执行
+                </button>
+                <button class="btn" id="btn-clear-crypto" style="width: 100%; justify-content: center; height: 45px; font-size: 0.9rem;">清空全部输入</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右侧：输出 -->
+    <div class="editor-container" style="display: flex; flex-direction: column; height: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <label class="label" id="crypto-output-label" style="margin-bottom: 0;">输出结果</label>
+            <button class="btn" id="btn-copy-crypto" style="padding: 4px 10px; font-size: 0.7rem; border-color: var(--accent-color); color: var(--accent-color);">点击复制</button>
+        </div>
+        <div class="textarea-wrapper" style="flex-grow: 1;">
+            <textarea id="crypto-output" placeholder="结果将在此显示..." readonly></textarea>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-tab {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        background: transparent;
+        border-color: transparent;
+        opacity: 0.7;
+    }
+    .btn-tab.active {
+        background: var(--accent-color);
+        border-color: var(--accent-color);
+        color: white;
+        opacity: 1;
+    }
+    .f-input-modern {
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        padding: 10px;
+        color: var(--text-primary);
+        border-radius: 6px;
+        width: 100%;
+        box-sizing: border-box;
+        outline: none;
+    }
+    .f-input-modern:focus { border-color: var(--accent-color); }
+</style>

@@ -41,6 +41,11 @@ const ToolRegistry = {
         view: './src/tools/PasswordTool/view.html',
         module: './src/tools/PasswordTool/module.js'
     },
+    'crypto-tool': {
+        name: '加解密工具',
+        view: './src/tools/CryptoTool/view.html',
+        module: './src/tools/CryptoTool/module.js'
+    },
     'table-tool': {
         name: '表格转换',
         view: './src/tools/TableTool/view.html',
