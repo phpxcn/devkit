@@ -1,0 +1,89 @@
+/* ═══════════════════════════════════════════
+   JSON 单框代码编辑器 专属样式
+   ═══════════════════════════════════════════ */
+
+/* 状态栏 */
+.json-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  gap: 10px;
+}
+
+.status-left { display: flex; align-items: center; gap: 8px; }
+.status-right { display: flex; align-items: center; gap: 8px; }
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.badge-ok    { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+.badge-error { background: rgba(239, 68, 68, 0.15);  color: #f87171; }
+.badge-none  { display: none; }
+
+.status-info { color: var(--text-secondary); }
+.status-meta { color: var(--text-dim); font-size: 0.75rem; }
+
+/* 代码编辑器主体 */
+.json-code-editor {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--input-bg);
+}
+
+/* 行号列 */
+.line-numbers-col {
+  width: 56px;
+  min-width: 56px;
+  overflow: hidden;         /* 隐藏滚动条，由 JS 同步 scrollTop */
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.line-numbers-col pre {
+  margin: 0;
+  padding: 15px 10px 15px 0;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  text-align: right;
+  user-select: none;
+  white-space: pre;
+}
+
+/* 代码区（高亮层 + textarea 叠加） */
+.editor-area {
+  flex: 1;
+  position: relative;
+  /* 移除 overflow: hidden，允许内部 textarea 的滚动条显示出来 */
+}
+
+/* 底部操作工具栏 */
+.json-action-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  padding: 2px 0;
+}
+
+.json-action-bar .btn {
+  flex: 0 0 auto;
+}

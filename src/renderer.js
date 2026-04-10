@@ -87,6 +87,24 @@ async function loadTool(toolId) {
         const html = fs.readFileSync(path.join(__dirname, config.view), 'utf8');
         activeContent.innerHTML = html;
 
+        // B2. 动态分离加载 CSS
+        let styleLink = document.getElementById('dynamic-tool-style');
+        if (!styleLink) {
+            styleLink = document.createElement('link');
+            styleLink.id = 'dynamic-tool-style';
+            styleLink.rel = 'stylesheet';
+            document.head.appendChild(styleLink);
+        }
+        
+        // 视图文件相同目录下的 style.css
+        const cssRelativePath = path.dirname(config.view) + '/style.css';
+        const cssAbsolutePath = path.join(__dirname, cssRelativePath);
+        if (fs.existsSync(cssAbsolutePath)) {
+            styleLink.href = cssRelativePath + "?v=" + Date.now(); // 附加时间戳防缓存
+        } else {
+            styleLink.removeAttribute('href');
+        }
+
         // C. 更新 UI 状态
         pageTitleElem.textContent = config.name;
         navItems.forEach(ni => {
