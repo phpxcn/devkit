@@ -47,6 +47,9 @@ class JsonTool {
             return JSON.parse(jsonStr);
         } catch (e) {
             try {
+                // 超大体积文件直接禁用 JSON5 容错，因为纯 JS 版引擎对于超大文本扫描会导致数秒及更长时间的假死！
+                if (jsonStr.length > 100 * 1024) throw e; 
+                
                 // 仅当环境中有 json5 时引入，如果是纯浏览器环境可按需切换
                 if (typeof require !== 'undefined') {
                     const JSON5 = require('json5');
@@ -54,6 +57,10 @@ class JsonTool {
                 }
                 throw e;
             } catch (e2) {
+                // 如果是超大文件抛出，提示原生报错；否则提示容错失败
+                if (jsonStr.length > 100 * 1024) {
+                    throw new Error(`无效的 JSON 格式（超大数据无法自动容错）: ${e.message}`);
+                }
                 throw new Error(`无效的 JSON 格式: ${e.message}`);
             }
         }
