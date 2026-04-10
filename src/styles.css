@@ -304,7 +304,7 @@ body {
   word-break: break-all; /* 强制所有长字符串换行 */
 }
 
-textarea {
+.textarea-wrapper textarea {
   position: absolute; /* 绝对定位填满 position:relative 的父容器 */
   top: 0;
   left: 0;

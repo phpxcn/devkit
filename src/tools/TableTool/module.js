@@ -1,7 +1,7 @@
 const TableDataset = require('../../models/TableDataset');
 const { CSVConverter, ExcelConverter } = require('../../converters/TableConverters');
 const MarkdownConverter = require('../../converters/MarkdownConverter');
-const { SQLConverter, HTMLConverter, JSONConverter, XMLConverter, YAMLConverter, ASCIIConverter } = require('../../converters/MoreConverters');
+const { SQLConverter, HTMLConverter, JSONConverter, XMLConverter, YAMLConverter, ASCIIConverter, LaTeXConverter } = require('../../converters/MoreConverters');
 const { ipcRenderer } = require('electron');
 const fs = require('fs');
 
@@ -48,7 +48,7 @@ module.exports = {
                     const ds = await MarkdownConverter.import(text);
                     if (ds && ds.rows.length > 0) { tableDataset.fromMatrix(ds.toMatrix(true), true); parsedData = true; }
                 } else if (['json', 'html', 'xml', 'yaml'].includes(sourceFormat)) {
-                    const { JSONConverter, HTMLConverter, XMLConverter, YAMLConverter } = require('./src/converters/MoreConverters');
+                    const { JSONConverter, HTMLConverter, XMLConverter, YAMLConverter } = require('../../converters/MoreConverters');
                     let ds = null;
                     if (sourceFormat === 'json') ds = await JSONConverter.import(text);
                     else if (sourceFormat === 'html') ds = await HTMLConverter.import(text);
@@ -447,7 +447,49 @@ module.exports = {
             } catch (e) { alert('导出失败: ' + e.message); }
         });
 
+        document.getElementById('btn-import-f')?.addEventListener('click', async () => {
+            const res = await ipcRenderer.invoke('show-open-dialog', {
+                properties: ['openFile'],
+                filters: [
+                    { name: 'Table Files', extensions: ['csv', 'xlsx', 'xls', 'json', 'md', 'html', 'xml', 'yaml', 'txt'] },
+                    { name: 'All Files', extensions: ['*'] }
+                ]
+            });
+            if (res && res.filePaths && res.filePaths.length > 0) {
+                const filePath = res.filePaths[0];
+                const ext = filePath.split('.').pop().toLowerCase();
+                try {
+                    if (ext === 'xlsx' || ext === 'xls') {
+                        const buffer = fs.readFileSync(filePath);
+                        const ds = await ExcelConverter.import(buffer, { sheetName: '' });
+                        if (ds && ds.rows.length > 0) {
+                            tableDataset.headers = ds.headers;
+                            tableDataset.rows = ds.rows;
+                            tableDataset.updateMetadata();
+                            tableDataset.saveToHistory();
+                            if (sourceDataFormatSelect) sourceDataFormatSelect.value = 'xlsx';
+                            if (sourceInputEditor) sourceInputEditor.value = '/* Excel 二进制内容已被加载到内存中 */';
+                            syncTableAll();
+                        }
+                    } else {
+                        const text = fs.readFileSync(filePath, 'utf-8');
+                        if (sourceInputEditor) sourceInputEditor.value = text;
+                        if (ext === 'csv') sourceDataFormatSelect.value = 'csv';
+                        else if (ext === 'json') sourceDataFormatSelect.value = 'json';
+                        else if (ext === 'md') sourceDataFormatSelect.value = 'md';
+                        else if (ext === 'html') sourceDataFormatSelect.value = 'html';
+                        else if (ext === 'xml') sourceDataFormatSelect.value = 'xml';
+                        else if (ext === 'yaml' || ext === 'yml') sourceDataFormatSelect.value = 'yaml';
+                        parseAndUpdateGrid(text);
+                    }
+                } catch (err) {
+                    alert('读取文件失败: ' + err.message);
+                }
+            }
+        });
+
         // 初始化
         renderTableConfig(currentTableFormat);
+        syncTableAll();
     }
 };

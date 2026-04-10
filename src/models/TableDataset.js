@@ -112,6 +112,14 @@ class TableDataset {
         this.metadata.colCount = this.headers.length;
     }
 
+    getMetadata() {
+        return {
+            rows: this.metadata.rowCount,
+            cols: this.metadata.colCount,
+            createdAt: this.metadata.createdAt
+        };
+    }
+
     toMatrix(includeHeaders = true) {
         if (includeHeaders && this.headers.length) {
             return [this.headers, ...this.rows];

@@ -176,7 +176,7 @@ function createMenu() {
       label: '视图',
       submenu: [
         { label: '重新加载', role: 'reload' },
-        { label: '开发者工具', role: 'toggleDevTools' },
+        ...(app.isPackaged ? [] : [{ label: '开发者工具', role: 'toggleDevTools' }]),
         { type: 'separator' },
         { label: '实际大小', role: 'resetZoom' },
         { label: '放大', role: 'zoomIn' },
