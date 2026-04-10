@@ -110,22 +110,49 @@ module.exports = {
             const format = currentTableFormat;
             const options = currentTableOptions[format] || {}; 
             const tableInputObj = document.getElementById('table-input');
-            if (!tableInputObj) return;
+            const visualPreviewObj = document.getElementById('table-visual-preview');
+            if (!tableInputObj || !visualPreviewObj) return;
 
             try {
-                let preview = "";
-                if (format === 'csv') preview = CSVConverter.export(tableDataset, options);
-                else if (format === 'md') preview = (typeof MarkdownConverter.exportSync === 'function') ? MarkdownConverter.exportSync(tableDataset, options) : MarkdownConverter.export(tableDataset, options);
-                else if (format === 'json') preview = JSONConverter.export(tableDataset, options);
-                else if (format === 'sql') preview = SQLConverter.export(tableDataset, options);
-                else if (format === 'html') preview = HTMLConverter.export(tableDataset, options);
-                else if (format === 'xml') preview = XMLConverter.export(tableDataset, options);
-                else if (format === 'yaml') preview = YAMLConverter.export(tableDataset, options);
-                else if (format === 'ascii') preview = ASCIIConverter.export(tableDataset, options);
-                else if (format === 'latex') preview = LaTeXConverter.export(tableDataset, options);
-                
-                tableInputObj.value = preview;
-            } catch (e) { console.error('Preview error:', e); }
+                if (format === 'xlsx') {
+                    // Excel 为二进制，展示视觉网格预览
+                    tableInputObj.style.display = 'none';
+                    visualPreviewObj.style.display = 'block';
+                    
+                    let html = '<table class="preview-table"><thead><tr>';
+                    tableDataset.headers.forEach(h => html += `<th>${h || ''}</th>`);
+                    html += '</tr></thead><tbody>';
+                    tableDataset.rows.forEach(row => {
+                        html += '<tr>';
+                        row.forEach(cell => html += `<td>${cell || ''}</td>`);
+                        html += '</tr>';
+                    });
+                    html += '</tbody></table>';
+                    visualPreviewObj.innerHTML = html;
+                } else {
+                    // 文本格式展示源码
+                    tableInputObj.style.display = 'block';
+                    visualPreviewObj.style.display = 'none';
+                    
+                    let preview = "";
+                    if (format === 'csv') preview = CSVConverter.export(tableDataset, options);
+                    else if (format === 'md') preview = (typeof MarkdownConverter.exportSync === 'function') ? MarkdownConverter.exportSync(tableDataset, options) : await MarkdownConverter.export(tableDataset, options);
+                    else if (format === 'json') preview = JSONConverter.export(tableDataset, options);
+                    else if (format === 'sql') preview = SQLConverter.export(tableDataset, options);
+                    else if (format === 'html') preview = HTMLConverter.export(tableDataset, options);
+                    else if (format === 'xml') preview = XMLConverter.export(tableDataset, options);
+                    else if (format === 'yaml') preview = YAMLConverter.export(tableDataset, options);
+                    else if (format === 'ascii') preview = ASCIIConverter.export(tableDataset, options);
+                    else if (format === 'latex') preview = LaTeXConverter.export(tableDataset, options);
+                    
+                    tableInputObj.value = preview;
+                }
+            } catch (e) { 
+                console.error('Preview error:', e); 
+                tableInputObj.style.display = 'block';
+                visualPreviewObj.style.display = 'none';
+                tableInputObj.value = "生成预览失败: " + e.message;
+            }
         }
 
         // --- 配置渲染 ---
@@ -439,12 +466,31 @@ module.exports = {
 
         document.getElementById('btn-export-f')?.addEventListener('click', async () => {
             const format = currentTableFormat;
-            const savePath = await ipcRenderer.invoke('show-save-dialog', { defaultPath: `export.${format}` });
+            const options = currentTableOptions[format] || {};
+            const savePath = await ipcRenderer.invoke('show-save-dialog', { 
+                defaultPath: `export.${format}`,
+                filters: [
+                    { name: format.toUpperCase(), extensions: [format] },
+                    { name: 'All Files', extensions: ['*'] }
+                ]
+            });
             if (!savePath.filePath) return;
             try {
-                let content = tableInput.value;
-                if (content) { fs.writeFileSync(savePath.filePath, content); alert('导出成功！'); }
-            } catch (e) { alert('导出失败: ' + e.message); }
+                let dataToSave;
+                if (format === 'xlsx') {
+                    dataToSave = await ExcelConverter.export(tableDataset, options);
+                } else {
+                    dataToSave = tableInput.value;
+                }
+                
+                if (dataToSave) {
+                    fs.writeFileSync(savePath.filePath, dataToSave);
+                    alert('导出成功！');
+                }
+            } catch (e) { 
+                console.error('Export error:', e);
+                alert('导出失败: ' + e.message); 
+            }
         });
 
         document.getElementById('btn-import-f')?.addEventListener('click', async () => {

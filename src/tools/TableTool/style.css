@@ -212,7 +212,7 @@
     cursor: pointer;
     gap: 10px;
     font-size: 0.8rem;
-    color: #cbd5e1;
+    color: var(--text-primary);
 }
 
 .f-checkbox-label input { display: none; }
@@ -220,9 +220,8 @@
 .checkbox-box {
     flex-shrink: 0;
     width: 16px; height: 16px;
-    border: 1.5px solid rgba(255,255,255,0.25);
+    border: 1.5px solid #64748b; /* 明确的灰色边框，不再依赖极低透明度 */
     border-radius: 4px;
-    background: rgba(255,255,255,0.03);
     position: relative;
     transition: all 0.2s;
 }
@@ -269,7 +268,7 @@
     display: flex;
     align-items: center;
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: var(--text-secondary);
     font-weight: 500;
 }
 
