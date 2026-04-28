@@ -4,7 +4,7 @@
     <button class="btn" id="btn-clear-text">清空</button>
 </div>
 
-<div class="tool-panel" style="flex-grow: 0; height: 350px; margin-bottom: 20px;">
+<div class="tool-panel diff-panel" style="flex-grow: 0; min-height: 350px; margin-bottom: 20px;">
     <div class="editor-container">
         <label class="label">原始内容</label>
         <div class="textarea-wrapper" style="flex-grow: 1;">
@@ -30,6 +30,9 @@
 </div>
 
 <style>
+    .diff-panel {
+        grid-template-columns: 1fr 1fr !important;
+    }
     .split-row { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid rgba(255, 255, 255, 0.03); min-height: 24px; line-height: 24px; }
     .split-pane { padding: 0 10px; white-space: pre-wrap; word-break: break-all; position: relative; }
     .split-pane::before { content: attr(data-ln); position: absolute; left: -35px; width: 30px; text-align: right; color: var(--text-dim); font-size: 0.7rem; opacity: 0.5; pointer-events: none;}

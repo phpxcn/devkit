@@ -4,7 +4,7 @@
     <button class="btn" id="btn-clear-diff">全部清空</button>
 </div>
 
-<div class="tool-panel" style="flex-grow: 0; height: 350px; margin-bottom: 20px;">
+<div class="tool-panel diff-panel" style="flex-grow: 0; min-height: 350px; margin-bottom: 20px;">
     <div class="editor-container">
         <label class="label">原始 JSON (Left)</label>
         <div class="textarea-wrapper" style="flex-grow: 1;">
@@ -30,6 +30,9 @@
 </div>
 
 <style>
+    .diff-panel {
+        grid-template-columns: 1fr 1fr !important;
+    }
     .diff-item {
         padding: 4px 8px;
         border-radius: 4px;
