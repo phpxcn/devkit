@@ -91,6 +91,69 @@ body {
   flex-direction: column;
   padding: 40px 0 20px 0;
   flex-shrink: 0;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+/* 侧边栏收起状态 */
+.sidebar.collapsed {
+  width: 72px;
+}
+
+.sidebar.collapsed .logo-text,
+.sidebar.collapsed .nav-item span:not(.nav-icon) {
+  display: none;
+}
+
+.sidebar.collapsed .logo-container {
+  padding: 0 18px 32px 18px;
+  justify-content: center;
+}
+
+.sidebar.collapsed .nav-item {
+  padding: 14px 0;
+  justify-content: center;
+}
+
+.sidebar.collapsed .nav-icon {
+  width: 28px;
+  font-size: 1.25rem;
+}
+
+/* 侧边栏切换按钮 */
+.sidebar-toggle {
+  position: absolute;
+  top: 50%;
+  right: -12px;
+  width: 24px;
+  height: 48px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 14px;
+  transition: var(--transition);
+  z-index: 10;
+  -webkit-app-region: no-drag;
+  box-shadow: none;
+  transform: translateY(-50%);
+}
+
+.sidebar-toggle:hover {
+  background: transparent;
+  color: var(--accent-color);
+}
+
+.sidebar-toggle:active {
+  transform: translateY(-50%) scale(0.9);
+}
+
+.sidebar.collapsed .sidebar-toggle {
+  transform: translateY(-50%) rotate(180deg);
 }
 
 .logo-container {

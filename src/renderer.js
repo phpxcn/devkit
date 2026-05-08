@@ -6,6 +6,26 @@ const { ipcRenderer } = require('electron');
 const fs = require('fs');
 const path = require('path');
 
+// --- 侧边栏展开/收起功能 ---
+(function initSidebarToggle() {
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    if (!sidebar || !toggleBtn) return;
+
+    // 默认收起
+    const savedState = localStorage.getItem('devkit-sidebar-collapsed');
+    const isCollapsed = savedState !== null ? savedState === 'true' : true;
+    
+    if (isCollapsed) {
+        sidebar.classList.add('collapsed');
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        const nowCollapsed = sidebar.classList.toggle('collapsed');
+        localStorage.setItem('devkit-sidebar-collapsed', nowCollapsed);
+    });
+})();
+
 // 1. 全局辅助工具 (挂载到 window 供各模块使用)
 window.copyToClipboard = async function(text) {
     try {
