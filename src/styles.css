@@ -222,17 +222,19 @@ body {
 
 .tool-page {
   display: none;
-  height: 100%;      /* 占满 main-content，不向外撑开 */
+  flex-grow: 1;      /* 占满 main-content 的剩余空间 */
   padding: 30px;
   flex-direction: column;
   gap: 12px;
-  overflow: hidden;  /* 不允许内容撑出去 */
+  min-height: 0;
   animation: fadeIn 0.4s ease-out;
 }
 
 .tool-page.active {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+  min-height: 0;
 }
 
 @keyframes fadeIn {

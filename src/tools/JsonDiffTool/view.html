@@ -4,7 +4,7 @@
     <button class="btn" id="btn-clear-diff">全部清空</button>
 </div>
 
-<div class="tool-panel diff-panel" style="flex-grow: 0; min-height: 350px; margin-bottom: 20px;">
+<div class="tool-panel diff-panel" style="height: 350px; margin-bottom: 20px;">
     <div class="editor-container">
         <label class="label">原始 JSON (Left)</label>
         <div class="textarea-wrapper" style="flex-grow: 1;">
@@ -20,7 +20,7 @@
     </div>
 </div>
 
-<div class="editor-container" style="margin-top: 20px; flex-grow: 1; display: flex; flex-direction: column;">
+<div class="editor-container" style="margin-top: 20px; flex-grow: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden;">
     <label class="label">对比结果分析</label>
     <div id="diff-results" class="tree-view" style="flex-grow: 1; overflow-y: auto; background-color: var(--input-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 15px;">
         <div style="color: var(--text-dim); text-align: center; padding-top: 40px;">
