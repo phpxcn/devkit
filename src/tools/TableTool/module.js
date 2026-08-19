@@ -19,6 +19,17 @@ module.exports = {
         const tableInput = document.getElementById('table-input');
 
         // --- 核心工具函数 ---
+        // 转义 HTML 特殊字符, 防止单元格内容被当作 HTML 执行 (XSS 防护)
+        function escapeHtml(s) {
+            if (s === null || s === undefined) return '';
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function updateTableStats() {
             const stats = tableDataset.getMetadata();
             const statsBtn = document.getElementById('table-stats');
@@ -26,6 +37,9 @@ module.exports = {
         }
 
         function syncTableAll() {
+            // 直接赋值 headers/rows 的操作 (clear/upper/lower/replace-all 等) 不会自动更新 metadata,
+            // 这里保险地刷新一次, 保证 stats 显示与数据一致
+            tableDataset.updateMetadata();
             renderGrid();
             refreshTablePreview();
             updateTableStats();
@@ -74,14 +88,14 @@ module.exports = {
 
             let html = '<table class="preview-table"><thead><tr>';
             tableDataset.headers.forEach((h, i) => {
-                html += `<th contenteditable="true" class="f-cell-input" data-col="${i}">${h || ''}</th>`;
+                html += `<th contenteditable="true" class="f-cell-input" data-col="${i}">${escapeHtml(h)}</th>`;
             });
             html += '</tr></thead><tbody>';
 
             tableDataset.rows.forEach((row, ri) => {
                 html += '<tr>';
                 row.forEach((cell, ci) => {
-                    html += `<td contenteditable="true" class="f-cell-input" data-row="${ri}" data-col="${ci}">${cell || ''}</td>`;
+                    html += `<td contenteditable="true" class="f-cell-input" data-row="${ri}" data-col="${ci}">${escapeHtml(cell)}</td>`;
                 });
                 html += '</tr>';
             });
@@ -92,14 +106,25 @@ module.exports = {
 
         function attachGridListeners() {
             tableGridView.querySelectorAll('.f-cell-input').forEach(el => {
-                el.addEventListener('focus', () => tableDataset.saveToHistory());
+                // focus 时记录编辑前的原值, 不在此刻 saveToHistory (那时 dataset 还没变, saveToHistory 会推一帧"改之前状态"导致 undo 错乱)
+                el.addEventListener('focus', () => {
+                    el._originalValue = el.innerText;
+                });
                 el.addEventListener('blur', () => {
                     const r = el.dataset.row;
                     const c = el.dataset.col;
                     const val = el.innerText;
+                    // 值未变化时不做任何处理, 避免无意义 save 和 DOM 刷新
+                    if (el._originalValue === val) return;
+                    // 值变了: 先保存"改之前状态"进历史, 再改 dataset
+                    // 这样 undo 会精确回到本次编辑之前
+                    tableDataset.saveToHistory();
                     if (r === undefined) tableDataset.headers[c] = val;
                     else tableDataset.rows[r][c] = val;
-                    syncTableAll();
+                    // 仅刷新预览和 stats, 不调 renderGrid 重建 DOM, 避免光标/Tab 序列丢失
+                    tableDataset.updateMetadata();
+                    refreshTablePreview();
+                    updateTableStats();
                 });
             });
         }
@@ -120,11 +145,11 @@ module.exports = {
                     visualPreviewObj.style.display = 'block';
                     
                     let html = '<table class="preview-table"><thead><tr>';
-                    tableDataset.headers.forEach(h => html += `<th>${h || ''}</th>`);
+                    tableDataset.headers.forEach(h => html += `<th>${escapeHtml(h)}</th>`);
                     html += '</tr></thead><tbody>';
                     tableDataset.rows.forEach(row => {
                         html += '<tr>';
-                        row.forEach(cell => html += `<td>${cell || ''}</td>`);
+                        row.forEach(cell => html += `<td>${escapeHtml(cell)}</td>`);
                         html += '</tr>';
                     });
                     html += '</tbody></table>';
@@ -412,6 +437,19 @@ module.exports = {
             tableDataset.rows = tableDataset.rows.map(r => r.map(c => String(c).toLowerCase()));
             syncTableAll();
         });
+        document.getElementById('btn-capitalize-f')?.addEventListener('click', () => {
+            tableDataset.saveToHistory();
+            // 每个单词首字母大写 (空格/标点分隔)
+            tableDataset.rows = tableDataset.rows.map(r => r.map(c => String(c).replace(/\b\w/g, m => m.toUpperCase())));
+            syncTableAll();
+        });
+        document.getElementById('btn-remove-dup-f')?.addEventListener('click', () => {
+            const before = tableDataset.rows.length;
+            tableDataset.removeDuplicates(); // 内部已 saveToHistory + updateMetadata
+            const after = tableDataset.rows.length;
+            syncTableAll();
+            if (before !== after) alert(`已去除重复行, ${before} → ${after}`);
+        });
 
         tableFormatTabs.forEach(tab => {
             tab.addEventListener('click', () => {
@@ -513,8 +551,8 @@ module.exports = {
                             tableDataset.rows = ds.rows;
                             tableDataset.updateMetadata();
                             tableDataset.saveToHistory();
-                            if (sourceDataFormatSelect) sourceDataFormatSelect.value = 'xlsx';
-                            if (sourceInputEditor) sourceInputEditor.value = '/* Excel 二进制内容已被加载到内存中 */';
+                            // Excel 是二进制, 无法在 textarea 粘贴显示; 这里只提示已载入, 避免用户编辑这串文本触发奇怪解析
+                            if (sourceInputEditor) sourceInputEditor.value = '[Excel 文件已载入到网格, 可直接在上方网格中编辑]';
                             syncTableAll();
                         }
                     } else {

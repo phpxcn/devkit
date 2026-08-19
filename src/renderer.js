@@ -76,6 +76,26 @@ const ToolRegistry = {
         view: './src/tools/TimestampTool/view.html',
         module: './src/tools/TimestampTool/module.js'
     },
+    'jwt-tool': {
+        name: 'JWT 解析',
+        view: './src/tools/JwtTool/view.html',
+        module: './src/tools/JwtTool/module.js'
+    },
+    'regex-tool': {
+        name: '正则表达式测试',
+        view: './src/tools/RegexTool/view.html',
+        module: './src/tools/RegexTool/module.js'
+    },
+    'numeric-tool': {
+        name: '数字工具集',
+        view: './src/tools/NumericTool/view.html',
+        module: './src/tools/NumericTool/module.js'
+    },
+    'frontend-tool': {
+        name: '前端小工具集',
+        view: './src/tools/FrontendTool/view.html',
+        module: './src/tools/FrontendTool/module.js'
+    },
     'settings-tool': {
         name: '系统设置',
         view: './src/tools/SettingsTool/view.html',

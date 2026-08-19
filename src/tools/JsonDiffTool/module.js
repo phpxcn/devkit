@@ -9,7 +9,19 @@ module.exports = {
         const rightInput = document.getElementById('json-right');
         const resultsArea = document.getElementById('diff-results');
 
-        // --- 1. 对比逻辑 ---
+        // toolbar 元素
+        const statAdded = document.getElementById('stat-added');
+        const statRemoved = document.getElementById('stat-removed');
+        const statChanged = document.getElementById('stat-changed');
+        const filterBtns = document.querySelectorAll('.filter-btns .opt-btn');
+        const pathFilterInput = document.getElementById('diff-path-filter');
+
+        // 闭包内状态
+        let lastDiffs = [];
+        let currentFilter = 'all';     // all | added | removed | changed
+        let currentPathKeyword = '';
+
+        // --- 1. 对比逻辑 (保持原有算法) ---
         function getDiff(obj1, obj2, path = '') {
             let diffs = [];
 
@@ -62,17 +74,50 @@ module.exports = {
             return diffs;
         }
 
-        function renderDiffs(diffList) {
+        // --- 2. 统计栏更新 ---
+        function updateStats(diffList) {
+            let added = 0, removed = 0, changed = 0;
+            diffList.forEach(d => {
+                if (d.type === 'added') added++;
+                else if (d.type === 'removed') removed++;
+                else if (d.type === 'changed') changed++;
+            });
+            if (statAdded) statAdded.textContent = `+${added}`;
+            if (statRemoved) statRemoved.textContent = `-${removed}`;
+            if (statChanged) statChanged.textContent = `~${changed}`;
+        }
+
+        // --- 3. 按当前筛选条件过滤 ---
+        function getFilteredDiffs() {
+            const kw = currentPathKeyword.trim().toLowerCase();
+            return lastDiffs.filter(d => {
+                if (currentFilter !== 'all' && d.type !== currentFilter) return false;
+                if (kw) {
+                    const p = (d.path || '').toLowerCase();
+                    if (!p.includes(kw)) return false;
+                }
+                return true;
+            });
+        }
+
+        // --- 4. 渲染 ---
+        function renderDiffs() {
+            const visible = getFilteredDiffs();
             resultsArea.innerHTML = '';
-            if (diffList.length === 0) {
+
+            if (lastDiffs.length === 0) {
                 resultsArea.innerHTML = '<div style="color: var(--accent-color); text-align: center; padding: 20px;">数据完全一致！✨</div>';
                 return;
             }
+            if (visible.length === 0) {
+                resultsArea.innerHTML = '<div class="diff-empty">没有匹配当前筛选条件的差异项</div>';
+                return;
+            }
 
-            diffList.forEach(diff => {
+            visible.forEach(diff => {
                 const div = document.createElement('div');
                 div.className = `diff-item diff-${diff.type}`;
-                
+
                 let badge = '';
                 let content = `<span class="diff-path">${diff.path || 'Root'}</span>`;
 
@@ -86,13 +131,13 @@ module.exports = {
                     badge = '<span style="color: #eab308; font-weight: 700;">[值变更]</span>';
                     content += `${badge} <span class="diff-val-old">${JSON.stringify(diff.oldVal)}</span> → <span class="diff-val-new">${JSON.stringify(diff.newVal)}</span>`;
                 }
-                
+
                 div.innerHTML = content;
                 resultsArea.appendChild(div);
             });
         }
 
-        // --- 2. 事件绑定 ---
+        // --- 5. 事件绑定 ---
         btnCompare?.addEventListener('click', () => {
             try {
                 const val1 = leftInput.value.trim();
@@ -102,8 +147,9 @@ module.exports = {
                 const obj1 = JSON5.parse(val1);
                 const obj2 = JSON5.parse(val2);
 
-                const differences = getDiff(obj1, obj2);
-                renderDiffs(differences);
+                lastDiffs = getDiff(obj1, obj2);
+                updateStats(lastDiffs);
+                renderDiffs();
             } catch (e) {
                 alert('JSON 解析错误，请检查输入格式是否正确！\n' + e.message);
             }
@@ -118,7 +164,29 @@ module.exports = {
         btnClear?.addEventListener('click', () => {
             leftInput.value = '';
             rightInput.value = '';
+            lastDiffs = [];
+            currentFilter = 'all';
+            currentPathKeyword = '';
+            if (pathFilterInput) pathFilterInput.value = '';
+            filterBtns.forEach(b => b.classList.toggle('active', b.dataset.filter === 'all'));
+            updateStats([]);
             resultsArea.innerHTML = '<div style="color: var(--text-dim); text-align: center; padding-top: 40px;">数据清空，等待输入...</div>';
+        });
+
+        // 类型筛选按钮
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter || 'all';
+                renderDiffs();
+            });
+        });
+
+        // 路径关键词实时过滤
+        pathFilterInput?.addEventListener('input', () => {
+            currentPathKeyword = pathFilterInput.value;
+            renderDiffs();
         });
     }
 };

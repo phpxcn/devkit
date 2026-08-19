@@ -56,3 +56,43 @@ stages:
         with:
           name: DevKit-Release-Build
           path: ./release-dist/
+
+  # macOS 构建（独立阶段：与 Win/Linux 隔离，失败不影响主流水线）
+  # 注意：需要 Gitee Go 提供 macOS runner；若不可用，可手动在本地执行 `npm run build-mac`
+  - name: build_mac
+    displayName: 构建 macOS 版本
+    strategy: naturally
+    steps:
+      - name: checkout
+        displayName: 拉取代码
+        checkout: self
+
+      - name: setup_nodejs
+        displayName: 配置 Node.js 环境
+        uses: nodejs@1.0
+        with:
+          version: 18.x
+
+      - name: build_mac_packages
+        displayName: 执行 macOS 打包脚本
+        script: |
+          # 设置 npm 镜像源
+          npm config set registry https://registry.npmmirror.com
+
+          # 安装依赖
+          npm install
+
+          # 执行打包
+          echo "==== 开始打包 macOS 版本 ===="
+          npm run build-mac
+
+          # 收集产物
+          mkdir -p ./release-dist-mac
+          cp -r release/*.dmg ./release-dist-mac/ 2>/dev/null || true
+
+      - name: upload_mac_artifacts
+        displayName: 上传 macOS 打包结果
+        uses: artifact@1.0
+        with:
+          name: DevKit-Release-Build-Mac
+          path: ./release-dist-mac/

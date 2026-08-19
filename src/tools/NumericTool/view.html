@@ -1,0 +1,206 @@
+<!-- 顶部页签式切换 -->
+<div class="actions-bar" style="margin-bottom: 20px;">
+    <div class="numeric-tabs" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button class="btn btn-tab active" data-tab="uuid">UUID 生成</button>
+        <button class="btn btn-tab" data-tab="base">进制转换</button>
+    </div>
+</div>
+
+<!-- ───────────────────────── Tab 1: UUID 生成 ───────────────────────── -->
+<div class="numeric-panel" data-panel="uuid">
+    <div class="tool-card">
+        <div class="card-header-fused">
+            <label class="label">UUID 生成器</label>
+        </div>
+        <div class="card-body-fused" style="display: flex; flex-direction: column; gap: 18px;">
+
+            <!-- 版本选择 -->
+            <div class="opt-row">
+                <span class="row-label">版本</span>
+                <div class="toggle-group" id="uuid-version-group">
+                    <button class="btn btn-tab active" data-version="v4">v4</button>
+                    <button class="btn btn-tab" data-version="v7">v7</button>
+                </div>
+            </div>
+
+            <!-- 格式选项 -->
+            <div class="opt-row" style="flex-wrap: wrap;">
+                <span class="row-label">格式</span>
+                <div class="toggle-group" id="uuid-case-group">
+                    <button class="btn btn-tab active" data-case="lower">小写</button>
+                    <button class="btn btn-tab" data-case="upper">大写</button>
+                </div>
+                <div class="toggle-group" id="uuid-hyphen-group" style="margin-left: 12px;">
+                    <button class="btn btn-tab active" data-hyphen="yes">带连字符</button>
+                    <button class="btn btn-tab" data-hyphen="no">无连字符</button>
+                </div>
+            </div>
+
+            <!-- 数量 -->
+            <div class="opt-row" style="align-items: center;">
+                <span class="row-label">数量</span>
+                <input type="number" id="uuid-count" class="f-input-modern" min="1" max="1000" value="1" style="max-width: 120px;">
+                <button class="btn btn-primary btn-sm" id="btn-gen-uuid" style="margin-left: 12px;">生成</button>
+                <button class="btn btn-success btn-sm" id="btn-copy-uuid" style="margin-left: 8px;">复制全部</button>
+            </div>
+
+            <!-- 结果 -->
+            <div>
+                <label class="label" style="margin-bottom: 8px; display: block;">结果（每行一个）</label>
+                <textarea id="uuid-output" class="f-textarea" readonly placeholder="点击「生成」按钮以获取 UUID..." style="height: 240px; font-family: var(--font-mono);"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ───────────────────────── Tab 2: 进制转换 ───────────────────────── -->
+<div class="numeric-panel" data-panel="base" style="display: none;">
+    <div class="tool-card">
+        <div class="card-header-fused">
+            <label class="label">进制转换</label>
+        </div>
+        <div class="card-body-fused" style="display: flex; flex-direction: column; gap: 18px;">
+
+            <!-- 输入 + 源进制 -->
+            <div>
+                <label class="label" style="margin-bottom: 8px; display: block;">输入值</label>
+                <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <input type="text" id="base-input" class="f-input-modern" placeholder="输入数字（按源进制书写）..." autocomplete="off" spellcheck="false" style="flex: 1; min-width: 240px; font-family: var(--font-mono);">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="row-label" style="margin: 0;">源进制</span>
+                        <select id="base-from" class="f-input-modern" style="width: auto; padding: 8px;">
+                            <option value="2">2 (二进制)</option>
+                            <option value="8">8 (八进制)</option>
+                            <option value="10" selected>10 (十进制)</option>
+                            <option value="16">16 (十六进制)</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="base-error" class="base-error" style="display: none;"></div>
+            </div>
+
+            <!-- 转换结果 -->
+            <div class="base-grid">
+                <div class="base-cell">
+                    <div class="base-cell-label">二进制 (Base 2)</div>
+                    <input type="text" id="base-out-2" class="f-input-modern base-out" readonly>
+                </div>
+                <div class="base-cell">
+                    <div class="base-cell-label">八进制 (Base 8)</div>
+                    <input type="text" id="base-out-8" class="f-input-modern base-out" readonly>
+                </div>
+                <div class="base-cell">
+                    <div class="base-cell-label">十进制 (Base 10)</div>
+                    <input type="text" id="base-out-10" class="f-input-modern base-out" readonly>
+                </div>
+                <div class="base-cell">
+                    <div class="base-cell-label">十六进制 (Base 16)</div>
+                    <input type="text" id="base-out-16" class="f-input-modern base-out" readonly>
+                </div>
+            </div>
+
+            <!-- 位长说明 -->
+            <div class="base-meta" id="base-meta">等待输入...</div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ── 通用卡片/输入框类（与 TableTool/style.css 保持一致，本工具自包含，避免切换工具后样式丢失） ── */
+    .tool-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; display: flex; flex-direction: column; }
+    .card-header-fused { padding: 12px 20px; background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .card-body-fused { padding: 16px 20px; }
+    .header-title { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); }
+    .empty-state { color: var(--text-dim); display: flex; align-items: center; justify-content: center; min-height: 60px; font-size: 0.9rem; padding: 16px; }
+    .f-input-modern { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); border-radius: 6px; height: 32px; padding: 0 8px; color: var(--text-primary); font-size: 0.75rem; outline: none; transition: all 0.2s; width: 100%; box-sizing: border-box; }
+    .f-input-modern:focus { border-color: var(--accent-color); background: rgba(255, 255, 255, 0.08); }
+    .f-textarea { width: 100%; background: transparent; border: none; padding: 12px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.9rem; outline: none; resize: vertical; }
+
+    /* tab 按钮（同 CryptoTool 风格，限定在 numeric 作用域内避免冲突） */
+    .numeric-tabs .btn-tab,
+    .numeric-panel .toggle-group .btn-tab {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        background: transparent;
+        border-color: transparent;
+        opacity: 0.7;
+    }
+    .numeric-tabs .btn-tab.active,
+    .numeric-panel .toggle-group .btn-tab.active {
+        background: var(--accent-color);
+        border-color: var(--accent-color);
+        color: white;
+        opacity: 1;
+    }
+    .toggle-group {
+        display: inline-flex;
+        gap: 4px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        overflow: hidden;
+    }
+    .toggle-group .btn-tab {
+        border: none;
+        border-radius: 0;
+        opacity: 0.65;
+    }
+    .toggle-group .btn-tab.active {
+        opacity: 1;
+    }
+
+    .opt-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .row-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        min-width: 48px;
+        font-weight: 600;
+    }
+
+    /* 进制转换结果网格 */
+    .base-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+    .base-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .base-cell-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+    .base-out {
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        background: var(--input-bg);
+    }
+
+    .base-meta {
+        font-size: 0.78rem;
+        color: var(--text-dim);
+        font-family: var(--font-mono);
+        padding: 10px 12px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        word-break: break-all;
+    }
+
+    .base-error {
+        margin-top: 8px;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        border-radius: 6px;
+    }
+</style>

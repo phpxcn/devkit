@@ -6,15 +6,13 @@
          <div class="header-title" style="margin: 0; font-size: 1.05rem; white-space: nowrap; flex-shrink: 0;"><i class="icon-source" style="margin-right: 4px;"></i> 数据源</div>
          <select id="source-data-format" class="f-select-modern" style="padding: 4px 24px 4px 12px; height: 32px; font-size: 0.9rem; border: none; font-weight: bold; background: rgba(255,255,255,0.05); border-radius: 6px; cursor: pointer; color: var(--accent-color);">
             <option value="json">JSON 数组</option>
-            <option value="xlsx">Excel</option>
             <option value="csv">CSV</option>
             <option value="md">Markdown 表格</option>
             <option value="html">HTML 表格</option>
-            <option value="sql">插入 SQL</option>
-            <option value="latex">LaTeX 表格</option>
             <option value="xml">XML</option>
             <option value="yaml">YAML</option>
          </select>
+         <!-- Excel 二进制只能通过「上传文件」加载, SQL/LaTeX 仅作为输出格式, 不支持作为文本源粘贴 -->
        </div>
        <div class="header-actions" style="display: flex; gap: 8px;">
           <button class="btn btn-primary btn-sm" id="btn-demo-data"><i class="icon">✨</i> 示例</button>

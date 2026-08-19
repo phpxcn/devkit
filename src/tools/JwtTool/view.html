@@ -1,0 +1,189 @@
+<div class="actions-bar">
+    <button class="btn btn-primary" id="btn-parse-jwt">解析</button>
+    <button class="btn" id="btn-clear-jwt">清空</button>
+    <button class="btn btn-secondary btn-sm" id="btn-copy-header">复制 Header</button>
+    <button class="btn btn-secondary btn-sm" id="btn-copy-payload">复制 Payload</button>
+</div>
+
+<!-- 输入区 -->
+<div class="tool-card" style="margin-bottom: 20px;">
+    <div class="card-header-fused">
+        <div class="header-title">JWT Token</div>
+    </div>
+    <div class="card-body-fused" style="padding: 16px;">
+        <textarea id="jwt-input" class="f-textarea" placeholder="在此粘贴 JWT token... (格式: header.payload.signature)" spellcheck="false" style="min-height: 150px; height: 150px;"></textarea>
+        <div id="jwt-error" class="jwt-error" style="display: none;"></div>
+    </div>
+</div>
+
+<!-- 解析结果区:三张卡片 -->
+<div class="jwt-result-grid">
+    <!-- Header -->
+    <div class="tool-card">
+        <div class="card-header-fused">
+            <div class="header-title">Header <span id="jwt-alg-badge" class="jwt-badge" style="display:none;"></span></div>
+        </div>
+        <div class="card-body-fused jwt-card-body">
+            <pre id="jwt-header" class="jwt-pre empty-state">等待解析...</pre>
+        </div>
+    </div>
+
+    <!-- Payload -->
+    <div class="tool-card">
+        <div class="card-header-fused">
+            <div class="header-title">Payload <span id="jwt-exp-badge" class="jwt-badge" style="display:none;"></span></div>
+        </div>
+        <div class="card-body-fused jwt-card-body">
+            <pre id="jwt-payload" class="jwt-pre empty-state">等待解析...</pre>
+            <div id="jwt-time-info" class="jwt-time-info"></div>
+        </div>
+    </div>
+
+    <!-- Signature -->
+    <div class="tool-card">
+        <div class="card-header-fused">
+            <div class="header-title">Signature</div>
+        </div>
+        <div class="card-body-fused jwt-card-body">
+            <pre id="jwt-signature" class="jwt-pre empty-state">等待解析...</pre>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ── 卡片布局 (本工具内自包含, 与 TableTool 视觉一致) ── */
+    .tool-card {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+    }
+    .card-header-fused {
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.02);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .card-body-fused { padding: 16px; }
+    .header-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .empty-state { color: var(--text-dim); }
+
+    /* 输入框 */
+    .f-textarea {
+        width: 100%;
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 12px;
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        outline: none;
+        resize: vertical;
+        box-sizing: border-box;
+        transition: var(--transition);
+    }
+    .f-textarea:focus { border-color: var(--accent-color); }
+
+    /* ── JWT 结果区专用 ── */
+    .jwt-result-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+    }
+    .jwt-card-body {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+    .jwt-pre {
+        margin: 0;
+        padding: 12px;
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        line-height: 1.45;
+        color: var(--text-primary);
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-y: auto;
+        max-height: 320px;
+        min-height: 80px;
+    }
+    .jwt-pre.empty-state {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    .jwt-badge {
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background: rgba(124, 58, 237, 0.15);
+        color: var(--accent-color);
+        border: 1px solid rgba(124, 58, 237, 0.3);
+        line-height: 1.4;
+    }
+    .jwt-badge.badge-warn {
+        background: rgba(234, 179, 8, 0.15);
+        color: #eab308;
+        border-color: rgba(234, 179, 8, 0.3);
+    }
+    .jwt-badge.badge-danger {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+    .jwt-badge.badge-success {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        border-color: rgba(34, 197, 94, 0.3);
+    }
+    .jwt-time-info {
+        margin-top: 10px;
+        font-size: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .jwt-time-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 4px 8px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 4px;
+    }
+    .jwt-time-key {
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
+        font-weight: 600;
+    }
+    .jwt-time-val { color: var(--text-primary); }
+    .jwt-error {
+        margin-top: 10px;
+        padding: 10px 12px;
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 6px;
+        color: #ef4444;
+        font-size: 0.82rem;
+        font-family: var(--font-mono);
+        word-break: break-all;
+    }
+</style>

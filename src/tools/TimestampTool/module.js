@@ -1,4 +1,4 @@
-const TimestampTool = require('../TimestampTool');
+const TimestampTool = require('./core');
 
 module.exports = {
     init: function() {

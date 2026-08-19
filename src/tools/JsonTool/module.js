@@ -1,4 +1,4 @@
-const JsonTool = require('../JsonTool');
+const JsonTool = require('./core');
 const fs = require('fs');
 const path = require('path');
 
@@ -56,6 +56,7 @@ module.exports = {
         const sizeInfo        = document.getElementById('json-size-info');
 
         const btnFormat    = document.getElementById('btn-format');
+        const btnOpenFile  = document.getElementById('btn-open-file');
         const btnCompress  = document.getElementById('btn-compress');
         const btnEscape    = document.getElementById('btn-escape');
         const btnUnescape  = document.getElementById('btn-unescape');
@@ -91,6 +92,35 @@ module.exports = {
             return (n / 1024 / 1024).toFixed(2) + ' MB';
         }
 
+        // 计算 UTF-8 编码后的字节数 (含中文/Emoji 等多字节字符准确计字节数)
+        function utf8ByteLength(s) {
+            let n = 0;
+            for (let i = 0; i < s.length; i++) {
+                const c = s.charCodeAt(i);
+                if (c < 0x80) n += 1;
+                else if (c < 0x800) n += 2;
+                else if (c >= 0xD800 && c <= 0xDBFF) { n += 4; i++; } // 代理对 (Emoji 等)
+                else n += 3;
+            }
+            return n;
+        }
+
+        // 从 jsonlint 错误对象或消息中解析行号/列号并跳转
+        function jumpToLintError(err) {
+            if (!err) return;
+            const msg = err.message || String(err);
+            let line = err.line, col = err.character || err.column;
+            if (!line) {
+                const m = msg.match(/line\s+(\d+)[^\d]+(\d+)/i);
+                if (m) { line = parseInt(m[1], 10); col = col || parseInt(m[2], 10); }
+            }
+            if (line) {
+                editor.setCursor({ line: line - 1, ch: (col || 1) - 1 });
+                editor.scrollIntoView({ from: { line: line - 1, ch: 0 }, to: { line: line - 1, ch: 100 } }, 50);
+                editor.focus();
+            }
+        }
+
         function setStatus(type, msg) {
             statusBadge.className = 'status-badge badge-' + type;
             statusBadge.textContent = type === 'ok' ? '✓ 合法' : type === 'error' ? '✗ 错误' : '';
@@ -114,16 +144,17 @@ module.exports = {
         // ── 核心刷新 ─────────────────────────────────────────────
         function updateAll() {
             const val = editor.getValue();
-            const bytes = val.length; 
+            const charCount = val.length;
+            const byteCount = utf8ByteLength(val);
             const lines = editor.lineCount();
 
             if (val.length === 0) {
                 sizeInfo.textContent = '';
                 setStatus('none', '请粘贴 JSON 数据');
                 return;
-            } 
-            
-            sizeInfo.textContent = `${lines.toLocaleString()} 行 · ${formatBytes(bytes)}`;
+            }
+
+            sizeInfo.textContent = `${lines.toLocaleString()} 行 · ${charCount.toLocaleString()} 字符 · ${formatBytes(byteCount)}`;
 
             if (val.trim()) {
                 try {
@@ -139,8 +170,38 @@ module.exports = {
 
         let debounceTimer;
         editor.on('change', () => {
+            // 内容变化时立即让旧搜索结果失效，避免在 debounce 期间按 Enter 跳到错误位置
+            searchResults = [];
+            currentSearchIndex = -1;
+            if (searchCount) searchCount.textContent = '0/0';
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(updateAll, 300);
+            debounceTimer = setTimeout(() => {
+                updateAll();
+                // 内容稳定后，若搜索框仍有词则自动重搜以刷新结果
+                if (searchInput.value) doSearch();
+            }, 300);
+        });
+
+        // ── 打开本地 .json 文件 ─────────────────────────────────
+        btnOpenFile?.addEventListener('click', async () => {
+            try {
+                const result = await window.electron.showOpenDialog({
+                    title: '选择 JSON 文件',
+                    filters: [
+                        { name: 'JSON', extensions: ['json'] },
+                        { name: '所有文件', extensions: ['*'] }
+                    ],
+                    properties: ['openFile']
+                });
+                if (!result || result.canceled || !result.filePaths || !result.filePaths.length) return;
+                const filePath = result.filePaths[0];
+                const content = fs.readFileSync(filePath, 'utf8');
+                editor.setValue(content);
+                editor.setCursor({ line: 0, ch: 0 });
+                setStatus('ok', `已载入 ${path.basename(filePath)}`);
+            } catch (err) {
+                setStatus('error', '文件读取失败: ' + (err.message || err));
+            }
         });
 
         // ── 格式化校验 ─────────────────────────────────────────────
@@ -148,16 +209,17 @@ module.exports = {
             const val = editor.getValue().trim();
             if (!val) return;
             try {
-                // 利用原生解析进行格式化
-                const obj = JSON.parse(val);
+                // 用 core.js 的 parseJSON 支持 JSON5 容错 (单引号/尾逗号等)
+                const obj = jsonTool.parseJSON(val);
                 editor.setValue(JSON.stringify(obj, null, 2));
                 setStatus('ok', 'JSON 格式合法 · 已美化排版');
             } catch (e) {
-                // 如果原生解析失败，交给 jsonlint 爆出具体错误
+                // 解析失败时让 jsonlint 报具体位置, 并跳转光标
                 try {
                     window.jsonlint.parse(val);
                 } catch(lintErr) {
-                    setStatus('error', lintErr.message || lintErr);
+                    setStatus('error', (lintErr.message || lintErr).split('\n')[0]);
+                    jumpToLintError(lintErr);
                 }
             }
         });
@@ -167,12 +229,13 @@ module.exports = {
             const val = editor.getValue().trim();
             if (!val) return;
             try {
-                const obj = JSON.parse(val);
+                const obj = jsonTool.parseJSON(val);
                 editor.setValue(JSON.stringify(obj));
                 setStatus('ok', '已压缩为单行');
             } catch (e) {
                 try { window.jsonlint.parse(val); } catch(lintErr) {
-                    setStatus('error', lintErr.message || lintErr);
+                    setStatus('error', (lintErr.message || lintErr).split('\n')[0]);
+                    jumpToLintError(lintErr);
                 }
             }
         });
@@ -327,14 +390,21 @@ module.exports = {
         });
 
         btnFindNext.addEventListener('click', () => {
-            if (searchResults.length === 0) return;
+            // 内容变化后 searchResults 可能已被清空, 此时若搜索框仍有词则先重搜
+            if (searchResults.length === 0) {
+                if (searchInput.value) doSearch();
+                return;
+            }
             currentSearchIndex = (currentSearchIndex + 1) % searchResults.length;
             updateSearchStats();
             highlightCurrentMatch();
         });
 
         btnFindPrev.addEventListener('click', () => {
-            if (searchResults.length === 0) return;
+            if (searchResults.length === 0) {
+                if (searchInput.value) doSearch();
+                return;
+            }
             currentSearchIndex = (currentSearchIndex - 1 + searchResults.length) % searchResults.length;
             updateSearchStats();
             highlightCurrentMatch();

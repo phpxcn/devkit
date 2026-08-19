@@ -2,9 +2,24 @@
     <button class="btn btn-primary" id="btn-compare-text">开始对比</button>
     <button class="btn" id="btn-swap-text">交换内容</button>
     <button class="btn" id="btn-clear-text">清空</button>
+    <div class="diff-toolbar" style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
+        <label class="diff-opt" title="只显示差异行, 关闭则全量双栏渲染">
+            <input type="checkbox" id="opt-only-diff" checked>
+            <span>仅显示差异</span>
+        </label>
+        <label class="diff-opt" title="每个差异行前后保留多少行相同内容作为上下文, 0 = 完全只显示差异行">
+            <span>上下文</span>
+            <select id="ctx-lines" class="ctx-select">
+                <option value="0">0 行</option>
+                <option value="1" selected>1 行</option>
+                <option value="3">3 行</option>
+                <option value="5">5 行</option>
+            </select>
+        </label>
+    </div>
 </div>
 
-<div class="tool-panel diff-panel" style="height: 350px; margin-bottom: 20px;">
+<div class="tool-panel diff-panel" style="height: 350px; flex-grow: 0; flex-shrink: 0; margin-bottom: 20px;">
     <div class="editor-container">
         <label class="label">原始内容</label>
         <div class="textarea-wrapper" style="flex-grow: 1;">
@@ -36,11 +51,21 @@
     .split-row { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid rgba(255, 255, 255, 0.03); min-height: 24px; line-height: 24px; }
     .split-pane { padding: 0 10px; white-space: pre-wrap; word-break: break-all; position: relative; }
     .split-pane::before { content: attr(data-ln); position: absolute; left: -35px; width: 30px; text-align: right; color: var(--text-dim); font-size: 0.7rem; opacity: 0.5; pointer-events: none;}
-    
+
     .pane-left { border-right: 1px solid var(--border-color); }
     .row-removed .pane-left { background-color: rgba(239, 68, 68, 0.15); color: #ef4444; }
     .row-added .pane-right { background-color: rgba(34, 197, 94, 0.15); color: #22c55e; }
     .empty-pane { background-color: rgba(0, 0, 0, 0.05); }
     .diff-header { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-secondary); font-weight: bold; font-size: 0.75rem; color: var(--text-dim); }
     .header-item { padding: 8px 10px; border-bottom: 1px solid var(--border-color); }
+
+    /* ── 差异过滤 toolbar ── */
+    .diff-toolbar { font-size: 0.8rem; color: var(--text-secondary); }
+    .diff-opt { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+    .diff-opt input[type="checkbox"] { accent-color: var(--accent-color); cursor: pointer; }
+    .ctx-select { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; height: 28px; padding: 0 6px; font-size: 0.8rem; cursor: pointer; }
+
+    /* 省略分隔行 */
+    .split-row.row-ellipsis { min-height: 22px; line-height: 22px; }
+    .split-row.row-ellipsis .split-pane { text-align: center; color: var(--text-dim); font-style: italic; font-size: 0.75rem; background: rgba(255, 255, 255, 0.02); }
 </style>

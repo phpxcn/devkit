@@ -1,0 +1,142 @@
+<!-- 顶部页签式选择 -->
+<div class="actions-bar" style="margin-bottom: 20px;">
+    <div class="frontend-tabs" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button class="btn btn-tab active" data-tab="color">颜色格式转换</button>
+        <button class="btn btn-tab" data-tab="html">HTML 转义/反转义</button>
+    </div>
+</div>
+
+<!-- ============ Tab 1: 颜色格式转换 ============ -->
+<div id="tab-color" class="ft-tab-panel" style="display: block;">
+    <!-- 5 个输入框水平排列 -->
+    <div class="color-inputs" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px;">
+        <div class="color-field">
+            <label class="label">HEX</label>
+            <div style="display: flex; gap: 6px;">
+                <input type="text" id="color-hex" class="color-input" value="#FF5722" placeholder="#RRGGBB" spellcheck="false">
+                <button class="btn btn-sm btn-secondary color-copy-btn" data-copy="hex" title="复制 HEX">复制</button>
+            </div>
+        </div>
+        <div class="color-field">
+            <label class="label">RGB</label>
+            <div style="display: flex; gap: 6px;">
+                <input type="text" id="color-rgb" class="color-input" placeholder="r, g, b" spellcheck="false">
+                <button class="btn btn-sm btn-secondary color-copy-btn" data-copy="rgb" title="复制 RGB">复制</button>
+            </div>
+        </div>
+        <div class="color-field">
+            <label class="label">HSL</label>
+            <div style="display: flex; gap: 6px;">
+                <input type="text" id="color-hsl" class="color-input" placeholder="h, s%, l%" spellcheck="false">
+                <button class="btn btn-sm btn-secondary color-copy-btn" data-copy="hsl" title="复制 HSL">复制</button>
+            </div>
+        </div>
+        <div class="color-field">
+            <label class="label">HSV</label>
+            <div style="display: flex; gap: 6px;">
+                <input type="text" id="color-hsv" class="color-input" placeholder="h, s%, v%" spellcheck="false">
+                <button class="btn btn-sm btn-secondary color-copy-btn" data-copy="hsv" title="复制 HSV">复制</button>
+            </div>
+        </div>
+        <div class="color-field">
+            <label class="label">CMYK</label>
+            <div style="display: flex; gap: 6px;">
+                <input type="text" id="color-cmyk" class="color-input" placeholder="c%, m%, y%, k%" spellcheck="false">
+                <button class="btn btn-sm btn-secondary color-copy-btn" data-copy="cmyk" title="复制 CMYK">复制</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 色块预览区 + 复制 HEX (点色块弹原生 color picker) -->
+    <div style="display: flex; gap: 20px; margin-bottom: 20px; align-items: stretch;">
+        <label style="flex-grow: 1; height: 220px; border-radius: 8px; border: 1px solid var(--border-color); position: relative; cursor: pointer; overflow: hidden; display: block;">
+            <div id="color-preview" style="position: absolute; inset: 0; background: #FF5722; transition: background 0.2s;"></div>
+            <input type="color" id="color-picker" value="#FF5722" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; border: none; padding: 0;"/>
+            <span style="position: absolute; bottom: 10px; right: 12px; padding: 4px 10px; background: rgba(0,0,0,0.55); color: white; border-radius: 4px; font-size: 0.75rem; pointer-events: none; opacity: 0.9; font-weight: 600;">点击选色 ▾</span>
+        </label>
+        <button class="btn btn-success" id="btn-copy-hex" style="align-self: flex-end; height: 45px; padding: 0 18px;">复制 HEX</button>
+    </div>
+
+    <!-- 颜色历史 -->
+    <div>
+        <label class="label">颜色历史 (最近 10 个, 点击恢复)</label>
+        <div id="color-history-list" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; min-height: 44px; padding: 10px; border: 1px dashed var(--border-color); border-radius: 8px; background: var(--input-bg);">
+            <span class="history-empty" style="color: var(--text-dim); font-size: 0.85rem;">暂无历史, 修改任一颜色即可记录</span>
+        </div>
+    </div>
+</div>
+
+<!-- ============ Tab 2: HTML 转义/反转义 ============ -->
+<div id="tab-html" class="ft-tab-panel" style="display: none;">
+    <div class="actions-bar" style="margin-bottom: 14px;">
+        <button class="btn btn-primary" id="btn-html-escape">转义</button>
+        <button class="btn btn-secondary" id="btn-html-unescape">反转义</button>
+        <button class="btn" id="btn-html-clear">清空</button>
+        <button class="btn btn-success" id="btn-html-copy">复制结果</button>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; height: 420px;">
+        <div class="editor-container" style="display: flex; flex-direction: column; height: 100%;">
+            <label class="label">输入</label>
+            <div class="textarea-wrapper" style="flex-grow: 1;">
+                <textarea id="html-input" placeholder="输入待转义/反转义的内容, 例如 <div class=&quot;box&quot;>..."></textarea>
+            </div>
+        </div>
+        <div class="editor-container" style="display: flex; flex-direction: column; height: 100%;">
+            <label class="label">输出结果</label>
+            <div class="textarea-wrapper" style="flex-grow: 1;">
+                <textarea id="html-output" placeholder="结果将在此显示..." readonly></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ── 页签 (同 CryptoTool 的 .btn-tab 风格) ── */
+    .frontend-tabs .btn-tab {
+        padding: 6px 14px;
+        font-size: 0.78rem;
+        background: transparent;
+        border-color: transparent;
+        opacity: 0.7;
+    }
+    .frontend-tabs .btn-tab.active {
+        background: var(--accent-color);
+        border-color: var(--accent-color);
+        color: white;
+        opacity: 1;
+    }
+
+    /* ── 颜色输入框 (同 .f-input-modern 风格, 本视图自包含) ── */
+    .color-field { display: flex; flex-direction: column; gap: 6px; }
+    .color-input {
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        padding: 8px 10px;
+        color: var(--text-primary);
+        border-radius: 6px;
+        width: 100%;
+        box-sizing: border-box;
+        outline: none;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        transition: var(--transition);
+        min-width: 0;
+    }
+    .color-input:focus { border-color: var(--accent-color); }
+    .color-input.invalid { border-color: #ef4444; }
+    .color-copy-btn { white-space: nowrap; }
+
+    /* ── 颜色历史色块 ── */
+    .history-swatch {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    .history-swatch:hover {
+        transform: scale(1.12);
+        border-color: var(--accent-color);
+    }
+</style>

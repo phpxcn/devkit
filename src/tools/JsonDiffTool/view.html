@@ -4,7 +4,25 @@
     <button class="btn" id="btn-clear-diff">全部清空</button>
 </div>
 
-<div class="tool-panel diff-panel" style="height: 350px; margin-bottom: 20px;">
+<!-- 差异过滤 toolbar -->
+<div class="diff-filter-bar">
+    <div class="diff-stats">
+        <span class="stat-item stat-added" id="stat-added">+0</span>
+        <span class="stat-item stat-removed" id="stat-removed">-0</span>
+        <span class="stat-item stat-changed" id="stat-changed">~0</span>
+    </div>
+    <div class="diff-filter-controls">
+        <div class="filter-btns" role="group" aria-label="差异类型筛选">
+            <button class="opt-btn active" data-filter="all">全部</button>
+            <button class="opt-btn" data-filter="added">新增</button>
+            <button class="opt-btn" data-filter="removed">删除</button>
+            <button class="opt-btn" data-filter="changed">变更</button>
+        </div>
+        <input type="text" id="diff-path-filter" class="path-filter-input" placeholder="按路径过滤 (如 user.name)..." spellcheck="false">
+    </div>
+</div>
+
+<div class="tool-panel diff-panel" style="height: 350px; flex-grow: 0; flex-shrink: 0; margin-bottom: 20px;">
     <div class="editor-container">
         <label class="label">原始 JSON (Left)</label>
         <div class="textarea-wrapper" style="flex-grow: 1;">
@@ -46,4 +64,32 @@
     .diff-path { color: var(--text-dim); margin-right: 8px; font-weight: 600; }
     .diff-val-old { color: #ef4444; text-decoration: line-through; margin-right: 10px; }
     .diff-val-new { color: #22c55e; font-weight: 600; }
+
+    /* ── 差异过滤 toolbar ── */
+    .diff-filter-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+        padding: 8px 10px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        flex-wrap: wrap;
+    }
+    .diff-stats { display: flex; gap: 14px; font-family: var(--font-mono); font-size: 0.85rem; }
+    .stat-item { font-weight: 600; }
+    .stat-added { color: #22c55e; }
+    .stat-removed { color: #ef4444; }
+    .stat-changed { color: #eab308; }
+    .diff-filter-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .filter-btns { display: flex; gap: 2px; border: 1px solid var(--border-color); border-radius: 4px; overflow: hidden; }
+    .opt-btn { background: transparent; border: none; color: var(--text-dim); font-size: 0.78rem; cursor: pointer; padding: 4px 10px; line-height: 1; transition: var(--transition); }
+    .opt-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+    .opt-btn.active { color: #fff; background: var(--accent-color); font-weight: bold; }
+    .path-filter-input { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 4px; height: 28px; padding: 0 8px; color: var(--text-primary); font-size: 0.8rem; min-width: 220px; outline: none; }
+    .path-filter-input:focus { border-color: var(--accent-color); }
+
+    .diff-empty { color: var(--text-dim); text-align: center; padding: 16px; font-size: 0.85rem; }
 </style>

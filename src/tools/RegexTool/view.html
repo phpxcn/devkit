@@ -1,0 +1,138 @@
+<!-- 顶部 actions-bar：正则输入 + 修饰词 + 执行/清空 + 匹配数 -->
+<div class="actions-bar" style="flex-wrap: wrap; gap: 10px; align-items: center;">
+    <input type="text" id="regex-pattern" class="f-input-modern"
+           placeholder="// 例如 \d+(\.\d+)?"
+           spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"
+           style="flex: 1; min-width: 240px; height: 34px; font-family: var(--font-mono);">
+    <div class="regex-flags" role="group" aria-label="正则修饰词">
+        <button class="opt-btn active" data-flag="g" title="全局匹配 (global)">g</button>
+        <button class="opt-btn" data-flag="i" title="忽略大小写 (ignoreCase)">i</button>
+        <button class="opt-btn" data-flag="m" title="多行模式 (multiline)">m</button>
+        <button class="opt-btn" data-flag="u" title="Unicode 模式 (unicode)">u</button>
+        <button class="opt-btn" data-flag="y" title="粘性匹配 (sticky)">y</button>
+    </div>
+    <button class="btn btn-primary btn-sm" id="btn-exec-regex" title="立即执行一次（默认输入变化即实时执行）">执行</button>
+    <button class="btn btn-secondary btn-sm" id="btn-clear-regex">清空</button>
+    <span id="match-count" class="regex-match-count">匹配 0 处</span>
+</div>
+
+<!-- 主体区 -->
+<div class="regex-scroll-wrapper" style="overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 6px; padding-bottom: 10px;">
+
+    <!-- 测试文本 -->
+    <div class="tool-card" style="margin-bottom: 0;">
+        <div class="card-header-fused" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;">
+            <div class="header-title" style="margin: 0; font-size: 1.05rem;">测试文本</div>
+            <span id="regex-status-badge" class="status-badge"></span>
+        </div>
+        <div class="card-body-fused" style="padding: 16px;">
+            <textarea id="test-text" class="f-textarea"
+                      placeholder="在此粘贴需要测试的文本... (支持多行)"
+                      spellcheck="false"
+                      style="width: 100%; min-height: 200px; resize: vertical; outline: none;"></textarea>
+        </div>
+    </div>
+
+    <!-- 高亮预览 -->
+    <div class="tool-card" style="margin-bottom: 0;">
+        <div class="card-header-fused" style="padding: 12px 16px;">
+            <div class="header-title" style="margin: 0; font-size: 1.05rem;">匹配高亮预览</div>
+        </div>
+        <div class="card-body-fused" style="padding: 16px;">
+            <div id="match-highlight" class="regex-highlight"
+                 style="background: var(--input-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 12px; min-height: 80px; font-family: var(--font-mono); font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; line-height: 1.6;">
+                <span style="color: var(--text-dim);">输入正则与文本后将在此显示高亮结果</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 捕获组 -->
+    <div class="tool-card">
+        <div class="card-header-fused" style="padding: 12px 16px;">
+            <div class="header-title" style="margin: 0; font-size: 1.05rem;">捕获组明细</div>
+        </div>
+        <div class="card-body-fused" style="padding: 16px;">
+            <div id="capture-groups" style="display: flex; flex-direction: column; gap: 8px;">
+                <div class="empty-state">无匹配结果</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ── 通用卡片/输入框类（与 TableTool/style.css 保持一致，本工具自包含，避免切换工具后样式丢失） ── */
+    .tool-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; display: flex; flex-direction: column; }
+    .card-header-fused { padding: 12px 20px; background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .card-body-fused { padding: 16px 20px; }
+    .header-title { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); }
+    .empty-state { color: var(--text-dim); display: flex; align-items: center; justify-content: center; min-height: 60px; font-size: 0.9rem; padding: 16px; }
+    .f-input-modern { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); border-radius: 6px; height: 32px; padding: 0 8px; color: var(--text-primary); font-size: 0.75rem; outline: none; transition: all 0.2s; width: 100%; box-sizing: border-box; }
+    .f-input-modern:focus { border-color: var(--accent-color); background: rgba(255, 255, 255, 0.08); }
+    .f-textarea { width: 100%; background: transparent; border: none; padding: 12px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.9rem; outline: none; resize: vertical; }
+
+    /* ── 修饰词按钮组（本工具自包含，避免依赖其他工具的 .opt-btn 注入） ── */
+    .regex-flags {
+        display: flex;
+        gap: 2px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        overflow: hidden;
+        height: 34px;
+    }
+    .regex-flags .opt-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-dim);
+        font-size: 0.85rem;
+        cursor: pointer;
+        padding: 0 12px;
+        min-width: 32px;
+        height: 100%;
+        line-height: 1;
+        transition: var(--transition);
+        font-family: var(--font-mono);
+    }
+    .regex-flags .opt-btn:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.05); }
+    .regex-flags .opt-btn.active { color: #fff; background: var(--accent-color); font-weight: bold; }
+
+    /* ── 匹配数标签 ── */
+    .regex-match-count {
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        padding: 4px 10px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        white-space: nowrap;
+    }
+
+    /* ── 高亮预览 ── */
+    .regex-highlight mark {
+        background: rgba(234, 179, 8, 0.45);
+        color: inherit;
+        border-radius: 3px;
+        padding: 0 1px;
+        box-shadow: 0 0 0 1px rgba(234, 179, 8, 0.3);
+    }
+    .regex-highlight .regex-error { color: #ef4444; white-space: pre-wrap; }
+
+    /* ── 捕获组明细 ── */
+    .capture-item { border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
+    .capture-item-head {
+        background: var(--bg-card);
+        padding: 8px 12px;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .capture-item-head .idx { color: var(--accent-color); font-weight: 700; margin-right: 4px; }
+    .capture-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.85rem; }
+    .capture-table td { padding: 6px 12px; border-top: 1px solid var(--border-color); vertical-align: top; }
+    .capture-table .grp { color: var(--text-dim); width: 80px; white-space: nowrap; }
+    .capture-table .val { color: var(--text-primary); word-break: break-word; }
+    .capture-table .val.empty { color: var(--text-dim); font-style: italic; }
+</style>
