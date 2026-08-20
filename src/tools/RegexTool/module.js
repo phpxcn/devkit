@@ -1,5 +1,10 @@
 module.exports = {
     init: function () {
+        // ══════════════════════ 公共 DOM ══════════════════════
+        const tabBtns          = document.querySelectorAll('.regex-tabs .btn-tab');
+        const panels           = document.querySelectorAll('.regex-panel');
+
+        // ══════════════════════ 测试页 ══════════════════════
         const patternInput    = document.getElementById('regex-pattern');
         const testText        = document.getElementById('test-text');
         const matchHighlight  = document.getElementById('match-highlight');
@@ -12,7 +17,28 @@ module.exports = {
 
         const EMPTY_HINT = '<span style="color: var(--text-dim);">输入正则与文本后将在此显示高亮结果</span>';
 
-        // ── 工具函数 ────────────────────────────────────────────
+        // ══════════════════════ 构造助手 ══════════════════════
+        const builderPattern   = document.getElementById('builder-pattern');
+        const builderFlagsText = document.getElementById('builder-flags-text');
+        const builderFlagBtns  = document.querySelectorAll('.regex-flags-small .opt-btn');
+        const btnBuilderClear  = document.getElementById('builder-clear');
+        const btnBuilderCopy   = document.getElementById('builder-copy');
+        const btnToTester      = document.getElementById('builder-to-tester');
+        const chipBtns         = document.querySelectorAll('.chip-btn');
+        const templateCards    = document.querySelectorAll('.template-card');
+
+        // ── Tab 切换 ────────────────────────────────────────────
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.dataset.tab;
+                tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+                panels.forEach(p => {
+                    p.style.display = (p.dataset.panel === target) ? '' : 'none';
+                });
+            });
+        });
+
+        // ── 公共工具函数 ─────────────────────────────────────────
         function escapeHtml(s) {
             return String(s)
                 .replace(/&/g, '&amp;')
@@ -22,12 +48,9 @@ module.exports = {
                 .replace(/'/g, '&#39;');
         }
 
-        // 从 toggle 按钮的 active 状态拼接 flags（默认 g 处于 active）
-        function getFlags() {
+        function getFlagsFrom(btnSet) {
             let f = '';
-            flagBtns.forEach(b => {
-                if (b.classList.contains('active')) f += b.dataset.flag;
-            });
+            btnSet.forEach(b => { if (b.classList.contains('active')) f += b.dataset.flag || b.dataset.flagSmall || ''; });
             return f;
         }
 
@@ -37,14 +60,12 @@ module.exports = {
             statusBadge.textContent = msg || '';
         }
 
-        // 拿所有匹配：global 时用 matchAll，非 global 时 exec 一次
         function getAllMatches(regex, text) {
             const matches = [];
             if (regex.global) {
                 try {
                     for (const m of text.matchAll(regex)) matches.push(m);
                 } catch (e) {
-                    // 兜底：exec 循环 + 空匹配守卫
                     let m, guard = 0;
                     while ((m = regex.exec(text)) !== null && guard++ < 100000) {
                         matches.push(m);
@@ -58,7 +79,6 @@ module.exports = {
             return matches;
         }
 
-        // 高亮 HTML：先对每段原文 escapeHtml，再包 <mark>，避免索引偏移与 XSS
         function buildHighlightHtml(text, matches) {
             let html = '';
             let cursor = 0;
@@ -73,7 +93,6 @@ module.exports = {
             return html;
         }
 
-        // 捕获组渲染：每个 match 展开 group 0 / 1 / 2 ...
         function renderCaptureGroups(matches) {
             captureGroups.innerHTML = '';
             if (matches.length === 0) {
@@ -105,12 +124,11 @@ module.exports = {
             });
         }
 
-        // ── 主执行 ──────────────────────────────────────────────
+        // ── 主执行（测试页） ────────────────────────────────────────
         function execute() {
             const pattern = patternInput.value;
             const text = testText.value;
 
-            // 空输入：回到初始态
             if (!pattern || !text) {
                 matchHighlight.innerHTML = EMPTY_HINT;
                 matchCount.textContent = '匹配 0 处';
@@ -119,7 +137,7 @@ module.exports = {
                 return;
             }
 
-            const flags = getFlags();
+            const flags = getFlagsFrom(flagBtns);
             let regex;
             try {
                 regex = new RegExp(pattern, flags);
@@ -144,29 +162,23 @@ module.exports = {
             setStatus(matches.length ? 'ok' : '', matches.length ? `命中 ${matches.length}` : '无匹配');
         }
 
-        // ── debounce 200ms（pattern / flags / test-text 任一变化都触发） ──
-        let timer;
-        function schedule() {
-            clearTimeout(timer);
-            timer = setTimeout(execute, 200);
+        // debounce（测试页）
+        let execTimer;
+        function scheduleExecute() {
+            clearTimeout(execTimer);
+            execTimer = setTimeout(execute, 200);
         }
 
-        // ── 事件绑定 ────────────────────────────────────────────
-        patternInput.addEventListener('input', schedule);
-        testText.addEventListener('input', schedule);
-
+        // 测试页事件
+        patternInput.addEventListener('input', scheduleExecute);
+        testText.addEventListener('input', scheduleExecute);
         flagBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 btn.classList.toggle('active');
-                schedule();
+                scheduleExecute();
             });
         });
-
-        btnExec?.addEventListener('click', () => {
-            clearTimeout(timer);
-            execute();
-        });
-
+        btnExec?.addEventListener('click', () => { clearTimeout(execTimer); execute(); });
         btnClear?.addEventListener('click', () => {
             patternInput.value = '';
             testText.value = '';
@@ -174,11 +186,179 @@ module.exports = {
             matchCount.textContent = '匹配 0 处';
             renderCaptureGroups([]);
             setStatus('', '');
-            // 修饰词重置为默认 g
             flagBtns.forEach(b => b.classList.toggle('active', b.dataset.flag === 'g'));
         });
 
-        // 首次进入执行一次（展示初始态）
         execute();
+
+        // ═════════════════════════════════════════════════════════════
+        // ══════════════════════ 构造助手逻辑 ══════════════════════
+        // ═════════════════════════════════════════════════════════════
+
+        // ── 修饰词同步显示 ────────────────────────────────────────────
+        function syncBuilderFlagsText() {
+            builderFlagsText.textContent = getFlagsFrom(builderFlagBtns);
+        }
+        builderFlagBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('active');
+                syncBuilderFlagsText();
+            });
+        });
+        syncBuilderFlagsText();
+
+        // ── 清空/复制 ────────────────────────────────────────────────
+        btnBuilderClear?.addEventListener('click', () => {
+            builderPattern.value = '';
+            builderFlagBtns.forEach(b => b.classList.toggle('active', (b.dataset.flagSmall || '') === 'g'));
+            syncBuilderFlagsText();
+            builderPattern.focus();
+        });
+
+        btnBuilderCopy?.addEventListener('click', () => {
+            const flags = getFlagsFrom(builderFlagBtns);
+            const s = '/' + builderPattern.value + '/' + flags;
+            (navigator.clipboard && navigator.clipboard.writeText(s))
+                .then(() => {
+                    const old = btnBuilderCopy.textContent;
+                    btnBuilderCopy.textContent = '✓ 已复制';
+                    setTimeout(() => { btnBuilderCopy.textContent = old; }, 900);
+                })
+                .catch(() => {
+                    // 兜底：document.execCommand（electron 沙箱可能无 navigator.clipboard 权限）
+                    const ta = document.createElement('textarea');
+                    ta.value = s; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                    document.body.appendChild(ta); ta.select();
+                    try { document.execCommand('copy'); } catch (_) {}
+                    document.body.removeChild(ta);
+                });
+        });
+
+        // ── 工具：在输入框光标处插入文本；带 data-sel 的会反选 ... 部分 ───
+        function insertAtCursor(input, snippet, selectBack) {
+            const start = input.selectionStart || 0;
+            const end   = input.selectionEnd   || 0;
+            const before = input.value.slice(0, start);
+            const after  = input.value.slice(end);
+            const newValue = before + snippet + after;
+            input.value = newValue;
+
+            let caret;
+            if (typeof selectBack === 'number' && selectBack > 0 && selectBack <= snippet.length) {
+                // 选中最后 selectBack 个字符（通常是括号里的 "..."）
+                caret = start + snippet.length;
+                input.setSelectionRange(caret - selectBack, caret);
+            } else {
+                caret = start + snippet.length;
+                input.setSelectionRange(caret, caret);
+            }
+            input.focus();
+            // 触发 input 事件（如果测试页将来复用这个输入框）
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        // ── 构造块 chip 按钮点击 ────────────────────────────────────
+        chipBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const raw = btn.dataset.insertRaw;
+                const use = typeof raw === 'string' ? raw : btn.dataset.insert;
+                const suffix = btn.dataset.suffix || '';
+                const selectBack = parseInt(btn.dataset.sel || '0', 10);
+
+                // data-insert 是展示给用户看的 (含 html 反斜杠转义)
+                // data-insert-raw 是要真正写到输入框里的（已经是 JS 字符串字面量，反斜杠数正确）
+                const snippet = use + suffix;
+                insertAtCursor(builderPattern, snippet, selectBack);
+            });
+        });
+
+        // ── 模板卡片：一键填入表达式 + 样例文本 ───────────────────────
+        const TEMPLATES = {
+            'cn-phone': {
+                pattern: '1[3-9]\\d{9}',
+                flags:   'g',
+                text:    '联系方式：13812345678，备用号 15900001111，固定电话 021-88889999，假号 12300000000'
+            },
+            'cn-id': {
+                pattern: '\\d{17}[\\dXx]',
+                flags:   'g',
+                text:    '居民身份证 310101199001011234，另一个 11010120001231003X，学生号 SZ20210001'
+            },
+            'email': {
+                pattern: '[\\w.+-]+@[\\w-]+\\.[\\w.-]+',
+                flags:   'gi',
+                text:    'Email: alice@example.com,  Bob+tag@foo-bar.co.uk,  not_an_email,  x@y.z'
+            },
+            'url': {
+                pattern: 'https?:\\/\\/[\\w.-]+(?:\\/\\S*)?',
+                flags:   'gi',
+                text:    '请访问 https://www.example.com/path?q=1 或 http://foo.bar，不要 ftp:// 开头的。'
+            },
+            'ipv4': {
+                pattern: '\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}',
+                flags:   'g',
+                text:    '机器 IP 列表：192.168.1.1，网关 10.0.0.254，公网 8.8.8.8，伪 999.1.1.1'
+            },
+            'decimal': {
+                pattern: '\\d+(\\.\\d{1,2})?',
+                flags:   'g',
+                text:    '价格 199.99 元，运费 8 元，合计 207.99，百分比 12.5%，整数 300'
+            },
+            'date-cn': {
+                pattern: '\\d{4}-\\d{2}-\\d{2}',
+                flags:   'g',
+                text:    '起始日期 2024-05-13，结束 2024-06-30，签约 2023/12/01（格式不同）'
+            },
+            'time-cn': {
+                pattern: '\\d{2}:\\d{2}(:\\d{2})?',
+                flags:   'g',
+                text:    '预约时间 09:30，截止 18:00:00，凌晨 00:01，中午 12:30:05'
+            },
+            'hex-color': {
+                pattern: '#[0-9A-Fa-f]{3,8}',
+                flags:   'g',
+                text:    '主题色 #6366f1，强调 #eab308，背景 #fff，#1f2937cc（含 alpha）'
+            },
+            'cn-name': {
+                pattern: '[\\u4e00-\\u9fa5]{2,4}',
+                flags:   'g',
+                text:    '张三、李四、欧阳克、张三丰、Tom 史密斯（这里只匹配中文）'
+            }
+        };
+
+        templateCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const tpl = TEMPLATES[card.dataset.tpl];
+                if (!tpl) return;
+                builderPattern.value = tpl.pattern;
+                // 同步 flags（仅这 4 个存在于 builder）
+                builderFlagBtns.forEach(b => {
+                    const f = b.dataset.flagSmall || '';
+                    b.classList.toggle('active', tpl.flags.indexOf(f) >= 0);
+                });
+                syncBuilderFlagsText();
+                // 同步把测试文本塞到测试页的 test-text（切过去立即能看到结果）
+                if (testText) testText.value = tpl.text;
+                execute();
+                // 提示：模板已载入，用户下一步点"去测试"
+                const old = btnToTester.textContent;
+                btnToTester.textContent = '✓ 已载入 → 去测试';
+                setTimeout(() => { btnToTester.textContent = old; }, 1100);
+            });
+        });
+
+        // ── 「→ 去测试」按钮：把表达式同步到测试页并切换 tab ───────
+        btnToTester?.addEventListener('click', () => {
+            patternInput.value = builderPattern.value;
+            const flags = getFlagsFrom(builderFlagBtns);
+            flagBtns.forEach(b => {
+                b.classList.toggle('active', flags.indexOf(b.dataset.flag || '') >= 0);
+            });
+            // 切到测试页
+            const testerBtn = document.querySelector('.regex-tabs .btn-tab[data-tab="tester"]');
+            if (testerBtn) testerBtn.click();
+            execute();
+            patternInput.focus();
+        });
     }
 };

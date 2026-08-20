@@ -1,0 +1,197 @@
+<!-- 顶部 actions-bar: 常用模板 + 清空 + 复制 + 次数 -->
+<div class="actions-bar" style="flex-wrap: wrap; gap: 8px;">
+    <span class="label" style="margin: 0;">常用模板</span>
+    <select id="cron-preset" class="f-input-modern" style="width: auto; min-width: 180px; height: 30px;">
+        <option value="">— 选择快速模板 —</option>
+        <option value="* * * * *">每分钟</option>
+        <option value="*/5 * * * *">每 5 分钟</option>
+        <option value="*/15 * * * *">每 15 分钟</option>
+        <option value="0 * * * *">每小时整点</option>
+        <option value="30 * * * *">每小时 30 分</option>
+        <option value="0 0 * * *">每天 00:00</option>
+        <option value="0 9 * * *">每天 09:00</option>
+        <option value="0 9 * * 1-5">工作日 09:00（一至五）</option>
+        <option value="0 0 * * 0">每周日 00:00</option>
+        <option value="0 0 1 * *">每月 1 号 00:00</option>
+        <option value="0 0 1 1 *">每年 1 月 1 日 00:00</option>
+        <option value="0 */2 * * *">每 2 小时</option>
+    </select>
+    <button class="btn btn-primary btn-sm" id="btn-parse-cron">解析</button>
+    <button class="btn btn-secondary btn-sm" id="btn-clear-cron">清空</button>
+    <button class="btn btn-sm" id="btn-copy-cron">复制</button>
+    <span class="label" style="margin: 0 0 0 auto;">显示</span>
+    <select id="cron-count" class="f-input-modern" style="width: auto; height: 28px;">
+        <option value="10">10 次</option>
+        <option value="20" selected>20 次</option>
+        <option value="50">50 次</option>
+        <option value="100">100 次</option>
+    </select>
+</div>
+
+<!-- 表达式 + 字段提示 -->
+<div class="tool-card">
+    <div class="card-header-fused">
+        <div class="header-title">Cron 表达式 (5 字段)</div>
+        <span id="cron-status-badge" class="status-badge"></span>
+    </div>
+    <div class="card-body-fused">
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="text" id="cron-input" class="f-input-modern"
+                   placeholder="例如: 0 9 * * 1-5"
+                   spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"
+                   style="font-family: var(--font-mono); font-size: 0.95rem; height: 38px; padding: 0 12px;">
+        </div>
+        <!-- 字段提示 (紧凑 inline 条形) -->
+        <div class="cron-field-hint">
+            <div class="cron-field-cell"><span class="cron-field-name">分</span><span class="cron-field-meta">0-59 · *, -, /</span></div>
+            <div class="cron-field-cell"><span class="cron-field-name">时</span><span class="cron-field-meta">0-23 · *, -, /</span></div>
+            <div class="cron-field-cell"><span class="cron-field-name">日</span><span class="cron-field-meta">1-31 · *, -, /, ?</span></div>
+            <div class="cron-field-cell"><span class="cron-field-name">月</span><span class="cron-field-meta">1-12 · *, -, /</span></div>
+            <div class="cron-field-cell"><span class="cron-field-name">周</span><span class="cron-field-meta">0-7 · *, -, /</span></div>
+        </div>
+        <div id="cron-error" class="cron-error" style="display: none;"></div>
+    </div>
+</div>
+
+<!-- 中文解释 -->
+<div class="tool-card">
+    <div class="card-header-fused"><div class="header-title">解释说明</div></div>
+    <div class="card-body-fused">
+        <div id="cron-desc" class="cron-desc-box">
+            <span style="color: var(--text-dim);">输入表达式后显示中文解释</span>
+        </div>
+    </div>
+</div>
+
+<!-- 未来 N 次执行时间 -->
+<div class="tool-card">
+    <div class="card-header-fused"><div class="header-title">未来执行时间</div></div>
+    <div class="card-body-fused">
+        <div id="cron-next-list" class="cron-next-list">
+            <div class="empty-state" style="min-height: 90px;">输入表达式后显示未来 N 次执行时间</div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ── 通用样式 (自包含, 与 TableTool 风格一致, 紧凑版) ── */
+    .tool-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; display: flex; flex-direction: column; }
+    .card-header-fused { padding: 8px 14px; background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .card-body-fused { padding: 12px 14px; }
+    .header-title { font-weight: 600; font-size: 0.88rem; color: var(--text-primary); }
+    .empty-state { color: var(--text-dim); display: flex; align-items: center; justify-content: center; min-height: 60px; font-size: 0.85rem; padding: 12px; }
+    .f-input-modern { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); border-radius: 6px; height: 30px; padding: 0 8px; color: var(--text-primary); font-size: 0.85rem; outline: none; transition: all 0.2s; width: 100%; box-sizing: border-box; }
+    .f-input-modern:focus { border-color: var(--accent-color); background: rgba(255, 255, 255, 0.08); }
+
+    /* ── 字段提示 (紧凑单行条形) ── */
+    .cron-field-hint {
+        margin-top: 10px;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+    }
+    .cron-field-cell {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 6px 10px;
+    }
+    .cron-field-name {
+        font-weight: 700;
+        color: var(--accent-color);
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+    .cron-field-meta {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* ── 错误提示 ── */
+    .cron-error {
+        margin-top: 10px;
+        padding: 6px 10px;
+        font-size: 0.82rem;
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        border-radius: 6px;
+    }
+
+    /* ── 解释框 ── */
+    .cron-desc-box {
+        font-size: 1rem;
+        line-height: 1.55;
+        color: var(--text-primary);
+        min-height: 28px;
+    }
+
+    /* ── 未来执行时间列表 (紧凑) ── */
+    .cron-next-list {
+        max-height: 280px;
+        overflow-y: auto;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        border-radius: 6px;
+        background: var(--input-bg);
+        padding: 6px 10px;
+    }
+    .cron-next-list ul { list-style: none; padding: 0; margin: 0; }
+    .cron-next-list li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 3px 2px;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+        height: 26px;
+    }
+    .cron-next-list li:last-child { border-bottom: none; }
+    .cron-next-list .idx {
+        color: var(--text-dim);
+        min-width: 32px;
+        text-align: right;
+        font-size: 0.75rem;
+    }
+    .cron-next-list .dt { color: var(--text-primary); flex: 1; }
+    .cron-next-list .iso { color: var(--text-secondary); font-size: 0.75rem; flex-shrink: 0; }
+    .cron-next-list .copy-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-dim);
+        cursor: pointer;
+        font-size: 0.72rem;
+        padding: 1px 4px;
+        border-radius: 3px;
+        transition: var(--transition);
+        flex-shrink: 0;
+    }
+    .cron-next-list .copy-btn:hover { background: rgba(255, 255, 255, 0.08); color: var(--accent-color); }
+
+    /* 列表自己的滚动条: 极简 */
+    .cron-next-list::-webkit-scrollbar { width: 6px; height: 6px; }
+    .cron-next-list::-webkit-scrollbar-track { background: transparent; }
+    .cron-next-list::-webkit-scrollbar-thumb {
+        background: color-mix(in srgb, var(--accent-color) 30%, transparent);
+        border-radius: 6px;
+    }
+    .cron-next-list::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
+
+    /* ── 状态徽章 ── */
+    .status-badge {
+        font-size: 0.72rem;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-family: var(--font-mono);
+        line-height: 1.2;
+    }
+    .badge-ok    { color: #22c55e; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); }
+    .badge-error { color: #ef4444; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); }
+</style>

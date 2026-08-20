@@ -17,7 +17,12 @@
     })();
   </script>
   <aside class="sidebar" id="sidebar">
-    <button class="sidebar-toggle" id="sidebar-toggle" title="展开/收起菜单">◀</button>
+    <button class="sidebar-toggle" id="sidebar-toggle" type="button"
+            title="收起侧栏" aria-label="收起侧栏" data-label-open="收起侧栏" data-label-close="展开侧栏">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
     <div class="logo-container">
       <img src="assets/icons/icon.png" alt="DevKit" class="logo-icon">
       <span class="logo-text">工坊</span>
@@ -136,6 +141,16 @@
           </svg>
         </span>
         <span>前端小工具</span>
+      </div>
+
+      <div class="nav-item" data-page="cron-tool" title="Cron 表达式解析">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 7 V12 L15 14 M2 12 H4 M20 12 H22"/>
+          </svg>
+        </span>
+        <span>Cron 解析</span>
       </div>
     </nav>
   </aside>

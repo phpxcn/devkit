@@ -28,8 +28,10 @@
 
 .grid-layout {
   display: flex;
-  align-items: flex-start;
-  height: 500px; /* 锁定固定高度 */
+  align-items: stretch;
+  min-height: 340px;
+  max-height: 560px;
+  flex: 1 1 0;
   overflow: hidden; 
 }
 
@@ -116,7 +118,9 @@
 .generator-workspace { 
   display: flex; 
   align-items: stretch; /* 让左右撑开对齐 */
-  height: 520px; 
+  min-height: 360px;
+  max-height: 560px;
+  flex: 1 1 0;
   background: var(--input-bg); 
   overflow: hidden;
   border-top: 1px solid var(--border-color);

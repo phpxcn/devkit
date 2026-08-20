@@ -1,133 +1,292 @@
-<!-- 顶部 actions-bar：正则输入 + 修饰词 + 执行/清空 + 匹配数 -->
-<div class="actions-bar" style="flex-wrap: wrap; gap: 10px; align-items: center;">
-    <input type="text" id="regex-pattern" class="f-input-modern"
-           placeholder="// 例如 \d+(\.\d+)?"
-           spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"
-           style="flex: 1; min-width: 240px; height: 34px; font-family: var(--font-mono);">
-    <div class="regex-flags" role="group" aria-label="正则修饰词">
-        <button class="opt-btn active" data-flag="g" title="全局匹配 (global)">g</button>
-        <button class="opt-btn" data-flag="i" title="忽略大小写 (ignoreCase)">i</button>
-        <button class="opt-btn" data-flag="m" title="多行模式 (multiline)">m</button>
-        <button class="opt-btn" data-flag="u" title="Unicode 模式 (unicode)">u</button>
-        <button class="opt-btn" data-flag="y" title="粘性匹配 (sticky)">y</button>
+<!-- 顶部 Tab 切换（正则测试 / 构造助手） -->
+<div class="actions-bar" style="flex-wrap: wrap; gap: 8px;">
+    <div class="regex-tabs">
+        <button class="btn btn-tab active" data-tab="tester">正则测试</button>
+        <button class="btn btn-tab" data-tab="builder">构造助手</button>
     </div>
-    <button class="btn btn-primary btn-sm" id="btn-exec-regex" title="立即执行一次（默认输入变化即实时执行）">执行</button>
-    <button class="btn btn-secondary btn-sm" id="btn-clear-regex">清空</button>
-    <span id="match-count" class="regex-match-count">匹配 0 处</span>
 </div>
 
-<!-- 主体区 -->
-<div class="regex-scroll-wrapper" style="overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 6px; padding-bottom: 10px;">
+<!-- ════════════════════════ Tab 1: 正则测试 ════════════════════════ -->
+<div class="regex-panel" data-panel="tester">
 
-    <!-- 测试文本 -->
-    <div class="tool-card" style="margin-bottom: 0;">
-        <div class="card-header-fused" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;">
-            <div class="header-title" style="margin: 0; font-size: 1.05rem;">测试文本</div>
-            <span id="regex-status-badge" class="status-badge"></span>
+    <!-- 顶部: 正则输入 + 修饰词 + 执行/清空 + 匹配数 -->
+    <div class="actions-bar" style="flex-wrap: wrap; gap: 10px; align-items: center;">
+        <input type="text" id="regex-pattern" class="f-input-modern"
+               placeholder="// 例如 \d+(\.\d+)?"
+               spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"
+               style="flex: 1; min-width: 240px; height: 34px; font-family: var(--font-mono);">
+        <div class="regex-flags" role="group" aria-label="正则修饰词">
+            <button class="opt-btn active" data-flag="g" title="全局匹配 (global)">g</button>
+            <button class="opt-btn" data-flag="i" title="忽略大小写 (ignoreCase)">i</button>
+            <button class="opt-btn" data-flag="m" title="多行模式 (multiline)">m</button>
+            <button class="opt-btn" data-flag="u" title="Unicode 模式 (unicode)">u</button>
+            <button class="opt-btn" data-flag="y" title="粘性匹配 (sticky)">y</button>
         </div>
-        <div class="card-body-fused" style="padding: 16px;">
-            <textarea id="test-text" class="f-textarea"
-                      placeholder="在此粘贴需要测试的文本... (支持多行)"
-                      spellcheck="false"
-                      style="width: 100%; min-height: 200px; resize: vertical; outline: none;"></textarea>
-        </div>
+        <button class="btn btn-primary btn-sm" id="btn-exec-regex" title="立即执行一次（默认输入变化即实时执行）">执行</button>
+        <button class="btn btn-secondary btn-sm" id="btn-clear-regex">清空</button>
+        <span id="match-count" class="regex-match-count">匹配 0 处</span>
     </div>
 
-    <!-- 高亮预览 -->
-    <div class="tool-card" style="margin-bottom: 0;">
-        <div class="card-header-fused" style="padding: 12px 16px;">
-            <div class="header-title" style="margin: 0; font-size: 1.05rem;">匹配高亮预览</div>
+    <div class="regex-scroll-wrapper" style="overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 6px; padding-bottom: 10px;">
+
+        <!-- 测试文本 -->
+        <div class="tool-card">
+            <div class="card-header-fused">
+                <div class="header-title">测试文本</div>
+                <span id="regex-status-badge" class="status-badge"></span>
+            </div>
+            <div class="card-body-fused">
+                <textarea id="test-text" class="f-textarea"
+                          placeholder="在此粘贴需要测试的文本... (支持多行)"
+                          spellcheck="false"
+                          style="width: 100%; min-height: 200px; max-height: 340px; resize: vertical; outline: none;"></textarea>
+            </div>
         </div>
-        <div class="card-body-fused" style="padding: 16px;">
-            <div id="match-highlight" class="regex-highlight"
-                 style="background: var(--input-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 12px; min-height: 80px; font-family: var(--font-mono); font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; line-height: 1.6;">
-                <span style="color: var(--text-dim);">输入正则与文本后将在此显示高亮结果</span>
+
+        <!-- 高亮预览 -->
+        <div class="tool-card">
+            <div class="card-header-fused"><div class="header-title">匹配高亮预览</div></div>
+            <div class="card-body-fused">
+                <div id="match-highlight" class="regex-highlight">
+                    <span style="color: var(--text-dim);">输入正则与文本后将在此显示高亮结果</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 捕获组 -->
+        <div class="tool-card">
+            <div class="card-header-fused"><div class="header-title">捕获组明细</div></div>
+            <div class="card-body-fused">
+                <div id="capture-groups" style="display: flex; flex-direction: column; gap: 8px;">
+                    <div class="empty-state">无匹配结果</div>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- 捕获组 -->
-    <div class="tool-card">
-        <div class="card-header-fused" style="padding: 12px 16px;">
-            <div class="header-title" style="margin: 0; font-size: 1.05rem;">捕获组明细</div>
+<!-- ════════════════════════ Tab 2: 构造助手 ════════════════════════ -->
+<div class="regex-panel" data-panel="builder" style="display: none;">
+
+    <div class="regex-scroll-wrapper" style="overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 6px; padding-bottom: 10px;">
+
+        <!-- 生成结果（当前表达式 + 修饰词 + 清空/复制按钮） -->
+        <div class="tool-card">
+            <div class="card-header-fused" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="header-title">当前表达式</div>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <div class="regex-flags-small" role="group" aria-label="修饰词">
+                        <button class="opt-btn active" data-flag-small="g" title="全局">g</button>
+                        <button class="opt-btn" data-flag-small="i" title="忽略大小写">i</button>
+                        <button class="opt-btn" data-flag-small="m" title="多行">m</button>
+                        <button class="opt-btn" data-flag-small="u" title="Unicode">u</button>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="builder-copy">复制</button>
+                    <button class="btn btn-sm" id="builder-clear">清空</button>
+                </div>
+            </div>
+            <div class="card-body-fused">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <span class="regex-quotemark" aria-hidden="true">/</span>
+                    <input type="text" id="builder-pattern" class="f-input-modern"
+                           placeholder="点击下方构造块按钮，或直接在此输入..."
+                           spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"
+                           style="flex: 1; height: 36px; font-family: var(--font-mono); font-size: 0.95rem;">
+                    <span class="regex-quotemark" aria-hidden="true">/</span>
+                    <span id="builder-flags-text" class="regex-flags-text" title="点击上方 g/i/m/u 按钮切换">g</span>
+                    <button class="btn btn-primary btn-sm" id="builder-to-tester" title="把表达式同步到「正则测试」页并立即执行">
+                        → 去测试
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="card-body-fused" style="padding: 16px;">
-            <div id="capture-groups" style="display: flex; flex-direction: column; gap: 8px;">
-                <div class="empty-state">无匹配结果</div>
+
+        <!-- 构造块：常用分类（锚点 / 量词 / 字符类 / 分组 / 转义字符） -->
+        <div class="tool-card">
+            <div class="card-header-fused"><div class="header-title">常用构造块（点击插入光标位置）</div></div>
+            <div class="card-body-fused builder-chips">
+                <!-- 锚点 -->
+                <div class="builder-group">
+                    <div class="builder-group-title">锚点</div>
+                    <div class="builder-chips-row">
+                        <button class="chip-btn" data-insert="^" data-desc="行/字符串开头">^ 开头</button>
+                        <button class="chip-btn" data-insert="$" data-desc="行/字符串结尾">$ 结尾</button>
+                        <button class="chip-btn" data-insert="\\b" data-desc="单词边界">\\b 单词边界</button>
+                        <button class="chip-btn" data-insert="\\B" data-desc="非单词边界">\\B 非边界</button>
+                    </div>
+                </div>
+                <!-- 量词 -->
+                <div class="builder-group">
+                    <div class="builder-group-title">量词</div>
+                    <div class="builder-chips-row">
+                        <button class="chip-btn" data-insert="*" data-desc="0 次或多次">* 0+</button>
+                        <button class="chip-btn" data-insert="+" data-desc="1 次或多次">+ 1+</button>
+                        <button class="chip-btn" data-insert="?" data-desc="0 或 1 次">? 0/1</button>
+                        <button class="chip-btn" data-insert="{n}"   data-insert-raw="{n}"   data-desc="恰好 n 次（把 n 改成数字）">{n} 恰好 n</button>
+                        <button class="chip-btn" data-insert="{n,}"  data-insert-raw="{n,}"  data-desc="至少 n 次">{n,} ≥n</button>
+                        <button class="chip-btn" data-insert="{n,m}" data-insert-raw="{n,m}" data-desc="n 到 m 次">{n,m} n~m</button>
+                        <button class="chip-btn" data-insert="*?" data-desc="非贪婪 0+">*? 非贪</button>
+                        <button class="chip-btn" data-insert="+?" data-desc="非贪婪 1+">+? 非贪</button>
+                    </div>
+                </div>
+                <!-- 字符类 -->
+                <div class="builder-group">
+                    <div class="builder-group-title">字符类</div>
+                    <div class="builder-chips-row">
+                        <button class="chip-btn" data-insert="\\d" data-desc="数字 [0-9]">\\d 数字</button>
+                        <button class="chip-btn" data-insert="\\D" data-desc="非数字">\\D 非数字</button>
+                        <button class="chip-btn" data-insert="\\w" data-desc="单词字符 [A-Za-z0-9_]">\\w 单词</button>
+                        <button class="chip-btn" data-insert="\\W" data-desc="非单词字符">\\W 非单词</button>
+                        <button class="chip-btn" data-insert="\\s" data-desc="空白字符">\\s 空白</button>
+                        <button class="chip-btn" data-insert="\\S" data-desc="非空白">\\S 非空白</button>
+                        <button class="chip-btn" data-insert="."  data-desc="除换行外任意字符">. 任意</button>
+                        <button class="chip-btn" data-insert="[a-z]" data-desc="小写字母">[a-z] 小写</button>
+                        <button class="chip-btn" data-insert="[A-Z]" data-desc="大写字母">[A-Z] 大写</button>
+                        <button class="chip-btn" data-insert="[0-9]" data-desc="数字（同 \\d）">[0-9] 数字</button>
+                        <button class="chip-btn" data-insert="[^0-9]" data-desc="排除数字">[^0-9] 非数</button>
+                        <button class="chip-btn" data-insert="[\\u4e00-\\u9fa5]" data-desc="匹配中文">[中] 中文</button>
+                    </div>
+                </div>
+                <!-- 分组 -->
+                <div class="builder-group">
+                    <div class="builder-group-title">分组 / 或</div>
+                    <div class="builder-chips-row">
+                        <button class="chip-btn" data-insert="(...)" data-insert-raw="(" data-desc="捕获组开始" data-suffix=")" data-sel="1">(...) 捕获</button>
+                        <button class="chip-btn" data-insert="(?:...)" data-insert-raw="(?:" data-desc="不捕获组" data-suffix=")" data-sel="3">(?:) 不捕获</button>
+                        <button class="chip-btn" data-insert="(?<name>...)" data-insert-raw="(?<name>)" data-desc="命名捕获" data-suffix=")" data-sel="7">(?&lt;n&gt;) 命名</button>
+                        <button class="chip-btn" data-insert="a|b" data-desc="或 (匹配 a 或 b)">a|b 或</button>
+                        <button class="chip-btn" data-insert="(?=...)" data-insert-raw="(?=" data-desc="正向先行断言" data-suffix=")" data-sel="3">(?=) 断言</button>
+                        <button class="chip-btn" data-insert="(?!...)" data-insert-raw="(?!" data-desc="负向先行断言" data-suffix=")" data-sel="3">(!=) 否定</button>
+                    </div>
+                </div>
+                <!-- 转义字符 -->
+                <div class="builder-group">
+                    <div class="builder-group-title">转义字符</div>
+                    <div class="builder-chips-row">
+                        <button class="chip-btn" data-insert="\\\\n" data-desc="换行符 LF">\\\\n 换行</button>
+                        <button class="chip-btn" data-insert="\\\\r" data-desc="回车符 CR">\\\\r 回车</button>
+                        <button class="chip-btn" data-insert="\\\\t" data-desc="制表符 Tab">\\\\t Tab</button>
+                        <button class="chip-btn" data-insert="\\." data-desc="转义点号（真实的 .）">\\. 点</button>
+                        <button class="chip-btn" data-insert="\\\\" data-desc="转义反斜杠">\\\\ 反斜</button>
+                        <button class="chip-btn" data-insert="\\/" data-desc="转义斜杠">\\/ 斜杠</button>
+                        <button class="chip-btn" data-insert="\\(\\)" data-desc="转义括号">\\(\\) 括号</button>
+                        <button class="chip-btn" data-insert="\\[\\]" data-desc="转义方括号">\\[\\] 方括</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 常用模板：一键填入（pattern + 测试文本） -->
+        <div class="tool-card">
+            <div class="card-header-fused"><div class="header-title">常用模板（一键填入表达式和测试文本）</div></div>
+            <div class="card-body-fused">
+                <div class="template-grid">
+                    <button class="template-card" data-tpl="cn-phone">
+                        <span class="tpl-title">手机号</span>
+                        <span class="tpl-body"><code>1[3-9]\\d{9}</code></span>
+                    </button>
+                    <button class="template-card" data-tpl="cn-id">
+                        <span class="tpl-title">身份证</span>
+                        <span class="tpl-body"><code>\\d{17}[\\dXx]</code></span>
+                    </button>
+                    <button class="template-card" data-tpl="email">
+                        <span class="tpl-title">邮箱</span>
+                        <span class="tpl-body"><code>[\\w.+-]+@[\\w-]+\\.[\\w.-]+</code></span>
+                    </button>
+                    <button class="template-card" data-tpl="url">
+                        <span class="tpl-title">URL</span>
+                        <span class="tpl-body"><code>https?:\\/\\/[\\w.-]+(?:\\/\\S*)?</code></span>
+                    </button>
+                    <button class="template-card" data-tpl="ipv4">
+                        <span class="tpl-title">IPv4</span>
+                        <span class="tpl-body"><code>\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}</code></span>
+                    </button>
+                    <button class="template-card" data-tpl="decimal">
+                        <span class="tpl-title">小数/货币</span>
+                        <span class="tpl-body"><code>\\d+(\\.\\d{1,2})?</code></span>
+                    </button>
+                    <button class="template-card" data-tpl="date-cn">
+                        <span class="tpl-title">日期 YYYY-MM-DD</span>
+                        <span class="tpl-body"><code>\\d{4}-\\d{2}-\\d{2}</code></span>
+                    </button>
+                    <button class="template-card" data-tpl="time-cn">
+                        <span class="tpl-title">时间 HH:MM(:SS)</span>
+                        <span class="tpl-body"><code>\\d{2}:\\d{2}(:\\d{2})?</code></span>
+                    </button>
+                    <button class="template-card" data-tpl="hex-color">
+                        <span class="tpl-title">HEX 颜色</span>
+                        <span class="tpl-body"><code>#[0-9A-Fa-f]{3,8}</code></span>
+                    </button>
+                    <button class="template-card" data-tpl="cn-name">
+                        <span class="tpl-title">中文姓名</span>
+                        <span class="tpl-body"><code>[\\u4e00-\\u9fa5]{2,4}</code></span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    /* ── 通用卡片/输入框类（与 TableTool/style.css 保持一致，本工具自包含，避免切换工具后样式丢失） ── */
-    .tool-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; display: flex; flex-direction: column; }
-    .card-header-fused { padding: 12px 20px; background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-    .card-body-fused { padding: 16px 20px; }
-    .header-title { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); }
-    .empty-state { color: var(--text-dim); display: flex; align-items: center; justify-content: center; min-height: 60px; font-size: 0.9rem; padding: 16px; }
-    .f-input-modern { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); border-radius: 6px; height: 32px; padding: 0 8px; color: var(--text-primary); font-size: 0.75rem; outline: none; transition: all 0.2s; width: 100%; box-sizing: border-box; }
+    /* ── 通用卡片/输入框类（与 TableTool/style.css 保持一致，自包含） ── */
+    .tool-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; display: flex; flex-direction: column; }
+    .card-header-fused { padding: 8px 14px; background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .card-body-fused { padding: 12px 14px; }
+    .header-title { font-weight: 600; font-size: 0.88rem; color: var(--text-primary); }
+    .empty-state { color: var(--text-dim); display: flex; align-items: center; justify-content: center; min-height: 60px; font-size: 0.85rem; padding: 12px; }
+    .f-input-modern { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); border-radius: 6px; height: 30px; padding: 0 8px; color: var(--text-primary); font-size: 0.85rem; outline: none; transition: all 0.2s; width: 100%; box-sizing: border-box; }
     .f-input-modern:focus { border-color: var(--accent-color); background: rgba(255, 255, 255, 0.08); }
-    .f-textarea { width: 100%; background: transparent; border: none; padding: 12px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.9rem; outline: none; resize: vertical; }
+    .f-textarea { width: 100%; background: transparent; border: none; padding: 12px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.9rem; outline: none; resize: vertical; background: var(--input-bg); border-radius: 6px; border: 1px solid var(--border-color); }
+    .f-textarea:focus { border-color: var(--accent-color); }
 
-    /* ── 修饰词按钮组（本工具自包含，避免依赖其他工具的 .opt-btn 注入） ── */
+    /* ── Tab 切换（测试/构造） ── */
+    .regex-tabs { display: flex; gap: 6px; }
+    .btn-tab { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; cursor: pointer; transition: var(--transition); line-height: 1.2; }
+    .btn-tab:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
+    .btn-tab.active { background: var(--accent-color); color: #fff; border-color: var(--accent-color); font-weight: 600; }
+
+    /* ── 修饰词按钮组（测试页） ── */
     .regex-flags {
-        display: flex;
-        gap: 2px;
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        overflow: hidden;
-        height: 34px;
+        display: flex; gap: 2px;
+        border: 1px solid var(--border-color); border-radius: 6px;
+        overflow: hidden; height: 34px;
     }
     .regex-flags .opt-btn {
-        background: transparent;
-        border: none;
-        color: var(--text-dim);
-        font-size: 0.85rem;
-        cursor: pointer;
-        padding: 0 12px;
-        min-width: 32px;
-        height: 100%;
-        line-height: 1;
-        transition: var(--transition);
-        font-family: var(--font-mono);
+        background: transparent; border: none; color: var(--text-dim);
+        font-size: 0.85rem; cursor: pointer; padding: 0 12px;
+        min-width: 32px; height: 100%; line-height: 1;
+        transition: var(--transition); font-family: var(--font-mono);
     }
     .regex-flags .opt-btn:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.05); }
     .regex-flags .opt-btn.active { color: #fff; background: var(--accent-color); font-weight: bold; }
 
     /* ── 匹配数标签 ── */
     .regex-match-count {
-        font-family: var(--font-mono);
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        padding: 4px 10px;
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        white-space: nowrap;
+        font-family: var(--font-mono); font-size: 0.85rem;
+        color: var(--text-secondary); padding: 4px 10px;
+        background: var(--bg-card); border: 1px solid var(--border-color);
+        border-radius: 6px; white-space: nowrap;
     }
 
     /* ── 高亮预览 ── */
+    .regex-highlight {
+        background: var(--input-bg); border-radius: 8px; border: 1px solid var(--border-color);
+        padding: 12px; min-height: 80px; max-height: 260px; overflow-y: auto;
+        font-family: var(--font-mono); font-size: 0.9rem;
+        white-space: pre-wrap; word-break: break-word; line-height: 1.6;
+    }
     .regex-highlight mark {
-        background: rgba(234, 179, 8, 0.45);
-        color: inherit;
-        border-radius: 3px;
-        padding: 0 1px;
-        box-shadow: 0 0 0 1px rgba(234, 179, 8, 0.3);
+        background: rgba(234, 179, 8, 0.45); color: inherit; border-radius: 3px;
+        padding: 0 1px; box-shadow: 0 0 0 1px rgba(234, 179, 8, 0.3);
     }
     .regex-highlight .regex-error { color: #ef4444; white-space: pre-wrap; }
 
     /* ── 捕获组明细 ── */
     .capture-item { border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
     .capture-item-head {
-        background: var(--bg-card);
-        padding: 8px 12px;
-        font-family: var(--font-mono);
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        background: var(--bg-card); padding: 8px 12px;
+        font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-secondary);
+        display: flex; justify-content: space-between; align-items: center;
     }
     .capture-item-head .idx { color: var(--accent-color); font-weight: 700; margin-right: 4px; }
     .capture-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.85rem; }
@@ -135,4 +294,121 @@
     .capture-table .grp { color: var(--text-dim); width: 80px; white-space: nowrap; }
     .capture-table .val { color: var(--text-primary); word-break: break-word; }
     .capture-table .val.empty { color: var(--text-dim); font-style: italic; }
+
+    /* ════════════════════════ 构造助手专属 ════════════════════════ */
+
+    /* 修饰词小按钮（助手页 header 右侧） */
+    .regex-flags-small {
+        display: flex; gap: 2px;
+        border: 1px solid var(--border-color); border-radius: 5px;
+        overflow: hidden; height: 28px;
+    }
+    .regex-flags-small .opt-btn {
+        background: transparent; border: none; color: var(--text-dim);
+        font-size: 0.8rem; cursor: pointer; padding: 0 8px;
+        height: 100%; line-height: 1;
+        transition: var(--transition); font-family: var(--font-mono);
+    }
+    .regex-flags-small .opt-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+    .regex-flags-small .opt-btn.active { color: #fff; background: var(--accent-color); font-weight: 600; }
+
+    .regex-quotemark {
+        font-family: var(--font-mono); font-size: 1.1rem;
+        color: var(--accent-color); font-weight: 700;
+        user-select: none;
+    }
+    .regex-flags-text {
+        font-family: var(--font-mono); font-size: 0.9rem;
+        color: var(--accent-color); font-weight: 700; margin: 0 2px;
+    }
+
+    /* 构造块分组 */
+    .builder-chips { display: flex; flex-direction: column; gap: 14px; }
+    .builder-group { display: flex; flex-direction: column; gap: 6px; }
+    .builder-group-title {
+        font-size: 0.78rem; font-weight: 700; color: var(--text-dim);
+        text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .builder-chips-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip-btn {
+        font-family: var(--font-mono);
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-size: 0.82rem;
+        cursor: pointer;
+        transition: var(--transition);
+        line-height: 1.2;
+    }
+    .chip-btn:hover {
+        background: color-mix(in srgb, var(--accent-color) 18%, var(--input-bg));
+        border-color: color-mix(in srgb, var(--accent-color) 55%, var(--border-color));
+        color: var(--accent-color);
+        transform: translateY(-1px);
+    }
+    .chip-btn:active { transform: translateY(0) scale(0.97); }
+
+    /* 模板卡片网格 */
+    .template-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        gap: 8px;
+    }
+    .template-card {
+        text-align: left;
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 8px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        line-height: 1.3;
+        overflow: hidden; /* 关键：截断子元素越界 */
+        min-width: 0;     /* flex/grid item 坑：允许被父容器压缩 */
+    }
+    .template-card:hover {
+        background: color-mix(in srgb, var(--accent-color) 12%, var(--input-bg));
+        border-color: color-mix(in srgb, var(--accent-color) 50%, var(--border-color));
+        transform: translateY(-1px);
+    }
+    .template-card:active { transform: translateY(0) scale(0.98); }
+    .template-card .tpl-title {
+        font-size: 0.85rem; font-weight: 700; color: var(--text-primary);
+    }
+    .template-card .tpl-body {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;    /* flex 子项坑：取消 auto 默认值，允许 ellipsis 生效 */
+        width: 100%;
+        display: block;
+    }
+    .template-card .tpl-body code {
+        background: transparent; padding: 0; font-family: inherit; font-size: inherit;
+    }
+
+    /* 列表自定义滚动条 */
+    .regex-scroll-wrapper::-webkit-scrollbar { width: 6px; }
+    .regex-scroll-wrapper::-webkit-scrollbar-track { background: transparent; }
+    .regex-scroll-wrapper::-webkit-scrollbar-thumb {
+        background: color-mix(in srgb, var(--accent-color) 25%, transparent);
+        border-radius: 6px;
+    }
+    .regex-scroll-wrapper::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
+
+    .regex-highlight::-webkit-scrollbar { width: 6px; }
+    .regex-highlight::-webkit-scrollbar-track { background: transparent; }
+    .regex-highlight::-webkit-scrollbar-thumb {
+        background: color-mix(in srgb, var(--accent-color) 25%, transparent);
+        border-radius: 6px;
+    }
 </style>

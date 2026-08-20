@@ -12,17 +12,25 @@ const path = require('path');
     const toggleBtn = document.getElementById('sidebar-toggle');
     if (!sidebar || !toggleBtn) return;
 
+    function applyCollapsedState(collapsed) {
+        const label = collapsed
+            ? (toggleBtn.dataset.labelClose || '展开侧栏')
+            : (toggleBtn.dataset.labelOpen  || '收起侧栏');
+        toggleBtn.setAttribute('title', label);
+        toggleBtn.setAttribute('aria-label', label);
+    }
+
     // 默认收起
     const savedState = localStorage.getItem('devkit-sidebar-collapsed');
     const isCollapsed = savedState !== null ? savedState === 'true' : true;
-    
-    if (isCollapsed) {
-        sidebar.classList.add('collapsed');
-    }
+
+    if (isCollapsed) sidebar.classList.add('collapsed');
+    applyCollapsedState(isCollapsed);
 
     toggleBtn.addEventListener('click', () => {
         const nowCollapsed = sidebar.classList.toggle('collapsed');
         localStorage.setItem('devkit-sidebar-collapsed', nowCollapsed);
+        applyCollapsedState(nowCollapsed);
     });
 })();
 
@@ -95,6 +103,11 @@ const ToolRegistry = {
         name: '前端小工具集',
         view: './src/tools/FrontendTool/view.html',
         module: './src/tools/FrontendTool/module.js'
+    },
+    'cron-tool': {
+        name: 'Cron 表达式解析',
+        view: './src/tools/CronTool/view.html',
+        module: './src/tools/CronTool/module.js'
     },
     'settings-tool': {
         name: '系统设置',
