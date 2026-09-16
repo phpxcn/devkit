@@ -49,6 +49,15 @@ DevKit 是一款基于 Electron 构建的强大开发者工具箱应用。它集
 - 数据去重、转置、清除空行、大小写转换、首字母大写、查找替换
 - 单元格直接编辑，失焦保留光标，XSS 防护
 
+### 📄 Markdown 转 PDF (Markdown PDF)
+- **实时预览**：左右分栏，左侧输入 Markdown 源码，右侧实时渲染预览（所见即所得）
+- **GFM 支持**：表格、删除线、任务列表、自动链接等 GitHub Flavored Markdown 全特性
+- **页面选项**：A4 / A5 / Letter / Legal 四种纸张规格
+- **主题切换**：浅色（白底）/ 羊皮纸 / 深色三种 PDF 配色主题
+- **文件导入**：一键打开 `.md` / `.markdown` / `.txt` 文件载入
+- **中文友好**：基于 Electron 原生 `printToPDF`，完美渲染中文与 CJK 字体，无需额外字体文件
+- **所见即所得**：预览与最终 PDF 使用同一套样式表，输出结果与预览完全一致
+
 ### ⏰ 时间戳工具 (Timestamp Tool)
 - 秒级 / 毫秒级时间戳双向转换
 - 本地时间与 ISO 格式
@@ -76,6 +85,7 @@ DevKit 是一款基于 Electron 构建的强大开发者工具箱应用。它集
   - `xlsx` - Excel 文件解析与导出
   - `papaparse` - CSV 文件解析
   - `js-yaml` / `json5` - YAML / JSON5 格式转换
+  - `marked` - Markdown 解析 (Markdown 转 PDF 工具)
   - `jspdf` / `jspdf-autotable` - PDF 导出支持
   - `crypto-js` - 加密解密
   - `codemirror` - 代码编辑器
@@ -150,6 +160,7 @@ DevKit/
 │       ├── FrontendTool/               # 颜色转换 + HTML 转义
 │       ├── TableTool/                  # 表格转换（含 style.css）
 │       ├── TimestampTool/              # 时间戳（含 core.js 核心逻辑）
+│       ├── MarkdownPdfTool/            # Markdown 转 PDF
 │       ├── CryptoTool/                 # 加解密
 │       ├── PasswordTool/               # 随机密码
 │       └── SettingsTool/              # 系统设置

@@ -109,6 +109,11 @@ const ToolRegistry = {
         view: './src/tools/CronTool/view.html',
         module: './src/tools/CronTool/module.js'
     },
+    'markdown-pdf-tool': {
+        name: 'Markdown 转 PDF',
+        view: './src/tools/MarkdownPdfTool/view.html',
+        module: './src/tools/MarkdownPdfTool/module.js'
+    },
     'settings-tool': {
         name: '系统设置',
         view: './src/tools/SettingsTool/view.html',

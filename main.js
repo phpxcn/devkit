@@ -138,6 +138,32 @@ ipcMain.on('open-external', (event, url) => {
   shell.openExternal(url);
 });
 
+// --- Markdown 转 PDF ---
+// 通过隐藏 BrowserWindow 渲染 HTML 后调用原生 printToPDF, 完美支持中文与完整 CSS
+ipcMain.handle('md-to-pdf', async (event, htmlContent, options) => {
+  const printOptions = Object.assign({
+    pageSize: 'A4',
+    printBackground: true,
+    margins: { marginType: 'custom', top: 0.4, bottom: 0.4, left: 0.4, right: 0.4 }
+  }, options || {});
+
+  const pdfWindow = new BrowserWindow({
+    show: false,
+    webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true }
+  });
+
+  try {
+    // 使用 base64 data URL 加载, 规避文件落盘与编码问题
+    const encoded = Buffer.from(htmlContent, 'utf8').toString('base64');
+    await pdfWindow.loadURL('data:text/html;base64,' + encoded);
+    // loadURL 在页面加载完成后 resolve; printToPDF 会等待渲染就绪
+    const pdfData = await pdfWindow.webContents.printToPDF(printOptions);
+    return pdfData;
+  } finally {
+    pdfWindow.destroy();
+  }
+});
+
 // --- 系统菜单 (保持原有逻辑) ---
 function createMenu() {
   const template = [
