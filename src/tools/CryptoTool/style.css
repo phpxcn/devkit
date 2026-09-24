@@ -1,0 +1,10 @@
+/* CryptoTool 工具专属样式（原内嵌于 view.html） */
+
+/* 算法选择 tab：未选中态透明胶囊化，选中态用全局 .btn-tab.active 强调色 */
+.crypto-tabs .btn-tab:not(.active) {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  background: transparent;
+  border-color: transparent;
+  opacity: 0.7;
+}

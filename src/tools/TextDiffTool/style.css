@@ -1,0 +1,25 @@
+/* TextDiffTool 工具专属样式（原内嵌于 view.html） */
+
+.diff-panel {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    .split-row { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--surface-3); min-height: 24px; line-height: 24px; }
+    .split-pane { padding: 0 10px; white-space: pre-wrap; word-break: break-all; position: relative; }
+    .split-pane::before { content: attr(data-ln); position: absolute; left: -35px; width: 30px; text-align: right; color: var(--text-dim); font-size: 0.7rem; opacity: 0.5; pointer-events: none;}
+
+    .pane-left { border-right: 1px solid var(--border-color); }
+    .row-removed .pane-left { background-color: color-mix(in srgb, var(--danger) 15%, transparent); color: var(--danger); }
+    .row-added .pane-right { background-color: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success); }
+    .empty-pane { background-color: var(--surface-1); }
+    .diff-header { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-secondary); font-weight: bold; font-size: 0.75rem; color: var(--text-dim); }
+    .header-item { padding: 8px 10px; border-bottom: 1px solid var(--border-color); }
+
+    /* ── 差异过滤 toolbar ── */
+    .diff-toolbar { font-size: 0.8rem; color: var(--text-secondary); }
+    .diff-opt { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+    .diff-opt input[type="checkbox"] { accent-color: var(--accent-color); cursor: pointer; }
+    .ctx-select { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; height: 28px; padding: 0 6px; font-size: 0.8rem; cursor: pointer; }
+
+    /* 省略分隔行 */
+    .split-row.row-ellipsis { min-height: 22px; line-height: 22px; }
+    .split-row.row-ellipsis .split-pane { text-align: center; color: var(--text-dim); font-style: italic; font-size: 0.75rem; background: var(--surface-0); }

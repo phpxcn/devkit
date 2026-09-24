@@ -1,0 +1,101 @@
+/* JwtTool 工具专属样式（原内嵌于 view.html） */
+
+/* 卡片/输入框/文本域基础样式由全局 styles.css 提供，此处仅补本工具特有布局 */
+
+    .header-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* ── JWT 结果区专用 ── */
+    .jwt-result-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+    }
+    .jwt-card-body {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+    .jwt-pre {
+        margin: 0;
+        padding: 12px;
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        line-height: 1.45;
+        color: var(--text-primary);
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-y: auto;
+        max-height: 320px;
+        min-height: 80px;
+    }
+    .jwt-pre.empty-state {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    .jwt-badge {
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background: color-mix(in srgb, var(--accent-color) 15%, transparent);
+        color: var(--accent-color);
+        border: 1px solid color-mix(in srgb, var(--accent-color) 30%, transparent);
+        line-height: 1.4;
+    }
+    .jwt-badge.badge-warn {
+        background: color-mix(in srgb, var(--warning) 15%, transparent);
+        color: var(--warning);
+        border-color: color-mix(in srgb, var(--warning) 30%, transparent);
+    }
+    .jwt-badge.badge-danger {
+        background: color-mix(in srgb, var(--danger) 15%, transparent);
+        color: var(--danger);
+        border-color: color-mix(in srgb, var(--danger) 30%, transparent);
+    }
+    .jwt-badge.badge-success {
+        background: color-mix(in srgb, var(--success) 15%, transparent);
+        color: var(--success);
+        border-color: color-mix(in srgb, var(--success) 30%, transparent);
+    }
+    .jwt-time-info {
+        margin-top: 10px;
+        font-size: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .jwt-time-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 4px 8px;
+        background: var(--surface-0);
+        border-radius: 4px;
+    }
+    .jwt-time-key {
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
+        font-weight: 600;
+    }
+    .jwt-time-val { color: var(--text-primary); }
+    .jwt-error {
+        margin-top: 10px;
+        padding: 10px 12px;
+        background: color-mix(in srgb, var(--danger) 12%, transparent);
+        border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
+        border-radius: 6px;
+        color: var(--danger);
+        font-size: 0.82rem;
+        font-family: var(--font-mono);
+        word-break: break-all;
+    }

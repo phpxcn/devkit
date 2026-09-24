@@ -1,5 +1,8 @@
 
 module.exports = {
+    // 已下线皮肤的迁移映射：暗夜/赛博 → 护眼皮肤
+    LEGACY_SKINS: { midnight: 'green', cyberpunk: 'sepia' },
+
     init: function() {
         const skinOpts = document.querySelectorAll('.skin-opt');
         const fontSelect = document.getElementById('font-select');
@@ -18,8 +21,8 @@ module.exports = {
                 opt.querySelector('div').style.transform = 'scale(1.1)';
                 opt.querySelector('div').style.boxShadow = '0 0 15px rgba(255,255,255,0.1)';
 
-                // 应用全局皮肤类
-                body.classList.remove('skin-light', 'skin-midnight', 'skin-cyberpunk');
+                // 应用全局皮肤类（顺带清理历史遗留皮肤类）
+                body.classList.remove('skin-light', 'skin-green', 'skin-sepia', 'skin-midnight', 'skin-cyberpunk');
                 if (skin !== 'default') {
                     body.classList.add(`skin-${skin}`);
                 }
@@ -47,7 +50,8 @@ module.exports = {
         });
 
         // --- 3. 初始化加载状态 ---
-        const savedSkin = localStorage.getItem('devkit-skin') || 'default';
+        const rawSkin = localStorage.getItem('devkit-skin') || 'default';
+        const savedSkin = this.LEGACY_SKINS[rawSkin] || rawSkin;
         const activeOpt = Array.from(skinOpts).find(opt => opt.getAttribute('data-skin') === savedSkin);
         if (activeOpt) activeOpt.click();
 
@@ -69,7 +73,8 @@ module.exports = {
         const body = document.body;
         const savedSkin = localStorage.getItem('devkit-skin');
         if (savedSkin && savedSkin !== 'default') {
-            body.classList.add(`skin-${savedSkin}`);
+            const migrated = this.LEGACY_SKINS[savedSkin] || savedSkin;
+            body.classList.add(`skin-${migrated}`);
         }
         
         const savedFont = localStorage.getItem('devkit-font-pref');

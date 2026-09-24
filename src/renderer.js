@@ -34,6 +34,53 @@ const path = require('path');
     });
 })();
 
+// --- 侧栏收起态下的悬浮提示：只显示图标时也能认出功能 ---
+(function initCollapsedTooltips() {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+
+    let tip = null;
+    function ensureTip() {
+        if (!tip) {
+            tip = document.createElement('div');
+            tip.className = 'sidebar-tooltip';
+            document.body.appendChild(tip);
+        }
+        return tip;
+    }
+
+    // 名称直接取菜单项里的文字，无需重复维护
+    function labelOf(item) {
+        const span = item.querySelector('span:not(.nav-icon)');
+        return (span ? span.textContent : '').trim();
+    }
+
+    function show(item) {
+        const t = ensureTip();
+        t.textContent = labelOf(item);
+        const rect = item.getBoundingClientRect();
+        t.style.top = (rect.top + rect.height / 2) + 'px';
+        t.style.left = (rect.right + 10) + 'px';
+        t.classList.add('visible');
+    }
+
+    function hide() {
+        if (tip) tip.classList.remove('visible');
+    }
+
+    sidebar.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('mouseenter', () => {
+            if (sidebar.classList.contains('collapsed')) show(item);
+        });
+        item.addEventListener('mouseleave', hide);
+        item.addEventListener('click', hide);
+    });
+
+    sidebar.addEventListener('mouseleave', hide);
+    const nav = sidebar.querySelector('nav');
+    if (nav) nav.addEventListener('scroll', hide);
+})();
+
 // 1. 全局辅助工具 (挂载到 window 供各模块使用)
 window.copyToClipboard = async function(text) {
     try {

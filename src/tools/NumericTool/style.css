@@ -1,0 +1,81 @@
+/* NumericTool 工具专属样式（原内嵌于 view.html） */
+
+/* 卡片/输入框/文本域基础样式由全局 styles.css 提供，此处仅留本工具特有样式 */
+
+    /* tab 按钮（同 CryptoTool 透明胶囊风格，仅限未选中态） */
+    .numeric-tabs .btn-tab:not(.active),
+    .numeric-panel .toggle-group .btn-tab:not(.active) {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        background: transparent;
+        border-color: transparent;
+        opacity: 0.7;
+    }
+    .toggle-group {
+        display: inline-flex;
+        gap: 4px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        overflow: hidden;
+    }
+    .toggle-group .btn-tab:not(.active) {
+        border: none;
+        border-radius: 0;
+        opacity: 0.65;
+    }
+
+    .opt-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .row-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        min-width: 48px;
+        font-weight: 600;
+    }
+
+    /* 进制转换结果网格 */
+    .base-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+    .base-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .base-cell-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+    .base-out {
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        background: var(--input-bg);
+    }
+
+    .base-meta {
+        font-size: 0.78rem;
+        color: var(--text-dim);
+        font-family: var(--font-mono);
+        padding: 10px 12px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        word-break: break-all;
+    }
+
+    .base-error {
+        margin-top: 8px;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        color: var(--danger);
+        background: color-mix(in srgb, var(--danger) 12%, transparent);
+        border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
+        border-radius: 6px;
+    }

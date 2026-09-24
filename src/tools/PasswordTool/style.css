@@ -1,0 +1,11 @@
+/* PasswordTool 工具专属样式（原内嵌于 view.html） */
+
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent-color);
+  }
+  .config-item span {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+  }

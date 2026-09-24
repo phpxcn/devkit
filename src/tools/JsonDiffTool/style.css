@@ -1,0 +1,46 @@
+/* JsonDiffTool 工具专属样式（原内嵌于 view.html） */
+
+.diff-panel {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    .diff-item {
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin-bottom: 2px;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+    }
+    .diff-added { background-color: color-mix(in srgb, var(--success) 15%, transparent); border-left: 3px solid var(--success); }
+    .diff-removed { background-color: color-mix(in srgb, var(--danger) 15%, transparent); border-left: 3px solid var(--danger); }
+    .diff-changed { background-color: color-mix(in srgb, var(--warning) 10%, transparent); border-left: 3px solid var(--warning); }
+    .diff-path { color: var(--text-dim); margin-right: 8px; font-weight: 600; }
+    .diff-val-old { color: var(--danger); text-decoration: line-through; margin-right: 10px; }
+    .diff-val-new { color: var(--success); font-weight: 600; }
+
+    /* ── 差异过滤 toolbar ── */
+    .diff-filter-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+        padding: 8px 10px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        flex-wrap: wrap;
+    }
+    .diff-stats { display: flex; gap: 14px; font-family: var(--font-mono); font-size: 0.85rem; }
+    .stat-item { font-weight: 600; }
+    .stat-added { color: var(--success); }
+    .stat-removed { color: var(--danger); }
+    .stat-changed { color: var(--warning); }
+    .diff-filter-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .filter-btns { display: flex; gap: 2px; border: 1px solid var(--border-color); border-radius: 4px; overflow: hidden; }
+    /* 分段控件内的 opt-btn 变体（仅未选中态，选中态见全局 .opt-btn.active） */
+    .filter-btns .opt-btn:not(.active) { background: transparent; border: none; color: var(--text-dim); font-size: 0.78rem; padding: 4px 10px; }
+    .filter-btns .opt-btn:not(.active):hover { color: var(--text-primary); background: var(--surface-1); }
+    .path-filter-input { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 4px; height: 28px; padding: 0 8px; color: var(--text-primary); font-size: 0.8rem; min-width: 220px; outline: none; }
+    .path-filter-input:focus { border-color: var(--accent-color); }
+
+    .diff-empty { color: var(--text-dim); text-align: center; padding: 16px; font-size: 0.85rem; }

@@ -1,0 +1,103 @@
+/* CronTool 工具专属样式（原内嵌于 view.html） */
+
+/* ── 紧凑卡片覆盖（全局 .tool-card 体系的紧凑变体，仅本工具生效） ── */
+    .tool-card { border-radius: 10px; }
+    .card-header-fused { padding: 8px 14px; }
+    .card-body-fused { padding: 12px 14px; }
+    .header-title { font-size: 0.88rem; }
+    .empty-state { font-size: 0.85rem; padding: 12px; }
+
+    /* ── 字段提示 (紧凑单行条形) ── */
+    .cron-field-hint {
+        margin-top: 10px;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+    }
+    .cron-field-cell {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 6px 10px;
+    }
+    .cron-field-name {
+        font-weight: 700;
+        color: var(--accent-color);
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+    .cron-field-meta {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* ── 错误提示 ── */
+    .cron-error {
+        margin-top: 10px;
+        padding: 6px 10px;
+        font-size: 0.82rem;
+        color: var(--danger);
+        background: color-mix(in srgb, var(--danger) 12%, transparent);
+        border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
+        border-radius: 6px;
+    }
+
+    /* ── 解释框 ── */
+    .cron-desc-box {
+        font-size: 1rem;
+        line-height: 1.55;
+        color: var(--text-primary);
+        min-height: 28px;
+    }
+
+    /* ── 未来执行时间列表 (紧凑) ── */
+    .cron-next-list {
+        max-height: 280px;
+        overflow-y: auto;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        border-radius: 6px;
+        background: var(--input-bg);
+        padding: 6px 10px;
+    }
+    .cron-next-list ul { list-style: none; padding: 0; margin: 0; }
+    .cron-next-list li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 3px 2px;
+        border-bottom: 1px dashed var(--border-color);
+        height: 26px;
+    }
+    .cron-next-list li:last-child { border-bottom: none; }
+    .cron-next-list .idx {
+        color: var(--text-dim);
+        min-width: 32px;
+        text-align: right;
+        font-size: 0.75rem;
+    }
+    .cron-next-list .dt { color: var(--text-primary); flex: 1; }
+    .cron-next-list .iso { color: var(--text-secondary); font-size: 0.75rem; flex-shrink: 0; }
+    .cron-next-list .copy-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-dim);
+        cursor: pointer;
+        font-size: 0.72rem;
+        padding: 1px 4px;
+        border-radius: 3px;
+        transition: var(--transition);
+        flex-shrink: 0;
+    }
+    .cron-next-list .copy-btn:hover { background: var(--surface-2); color: var(--accent-color); }
+
+    /* 滚动条由全局统一隐藏 */
+
+    /* 状态徽章样式见全局 styles.css (.status-badge / .badge-ok / .badge-error) */
