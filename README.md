@@ -75,8 +75,40 @@ DevKit 是一款基于 Electron 构建的强大开发者工具箱应用。它集
 - 密码强度实时显示
 
 ### ⚙️ 设置中心 (Settings)
-- 主题切换：Default（深邃蓝深色）、Light（亮色）、Midnight（午夜）、Cyberpunk（赛博朋克）
+- 皮肤切换：深邃蓝（默认深色）、纯白（浅色）、豆沙绿（护眼）、暖羊皮（护眼）
 - 字体偏好
+
+## 📥 下载与安装
+
+普通用户无需配置环境，直接下载安装包即可：
+
+👉 **前往 [Releases](https://github.com/phpxcn/devkit/releases) 页面下载最新版本**
+
+根据操作系统选择对应文件：
+
+| 平台 | 下载文件 | 安装方式 |
+| --- | --- | --- |
+| **macOS**（Apple 芯片 M1/M2/M3） | `DevKit-x.x.x-mac-arm64.dmg` | 打开 dmg，把图标拖入 `Applications` |
+| **macOS**（Intel 芯片） | `DevKit-x.x.x-mac-x64.dmg` | 同上 |
+| **Windows**（Win 10/11） | `DevKit-x.x.x-win-x64.exe` | 双击运行安装向导，可选安装路径 |
+| **Linux**（Debian / Ubuntu） | `DevKit-x.x.x-linux-x64.deb` | `sudo dpkg -i DevKit-*.deb` |
+| **Linux**（通用） | `DevKit-x.x.x-linux-x64.AppImage` | `chmod +x` 后直接运行，免安装 |
+
+> 不确定 Mac 芯片型号？点左上角 Apple 菜单  → 「关于本机」查看「芯片」一栏：Apple M 系列选 `arm64`，Intel 选 `x64`。
+
+### ⚠️ 首次打开提示（重要）
+
+本项目为个人开源软件，**未做付费代码签名**，首次安装时系统可能拦截，属正常现象：
+
+- **macOS** 提示「无法打开，因为它来自身份不明的开发者」
+  → 不要点「移除」，改为**右键（或 Control + 单击）应用图标 → 打开 → 再点「打开」**即可。
+  若右键仍被拦，终端执行：`xattr -cr /Applications/工坊\(DevKit\).app`
+
+- **Windows** 弹出蓝色「Windows 已保护你的电脑 / 未知发布者」
+  → 点「**更多信息**」→ 再点「**仍要运行**」即可安装。
+
+### 🔄 自动更新
+应用内置自动更新：发布新版本后，打开应用会自动检测并提示升级（Windows / Linux 支持静默更新；macOS 因未签名需手动下载安装）。
 
 ## 🛠 技术栈
 
@@ -125,7 +157,16 @@ npm run build-win
 npm run build-linux
 ```
 
-CI 构建（[`.gitee-go.yml`](.gitee-go.yml)）已配置 Gitee-Go 流水线，push 到 main/master 自动构建 Windows、Linux、macOS 三平台产物。
+发布新版本只需两步，GitHub Actions 会自动完成三平台打包并发布到 Releases：
+
+```bash
+npm version patch          # 1.2.0 → 1.2.1，自动生成 commit 与 tag
+git push origin main --tags # 推送 tag 触发 CI
+```
+
+CI 配置见 [`.github/workflows/release.yml`](.github/workflows/release.yml)：推送到 `v*` tag 时，`macos-latest`（arm64 + x64）、`windows-latest`、`ubuntu-latest` 三个任务并行构建，产物由 `electron-builder` 直接上传并发布到 GitHub Releases，用户在 Releases 页面即可下载。
+
+> 国内网络下 `npm install` 可能拉取 Electron 超时，本地构建前可参考上方「启动与开发」配置 `.npmrc` 镜像。
 
 ## 📁 项目结构
 
@@ -135,7 +176,8 @@ DevKit/
 ├── preload.js           # 预加载脚本（contextBridge: 剪贴板 / 对话框 / 外链）
 ├── index.html           # 主页面（侧边栏导航）
 ├── package.json         # 项目配置
-├── .gitee-go.yml        # Gitee-Go CI 流水线
+├── .github/workflows/   # GitHub Actions 发布流水线（打 tag 自动打包并发 Release）
+│   └── release.yml
 ├── assets/              # 静态资源
 │   └── icons/           # 应用图标
 ├── src/

@@ -1,0 +1,52 @@
+name: Release Build
+
+# 打 tag 即触发：git tag v1.2.1 && git push origin v1.2.1
+on:
+  push:
+    tags:
+      - 'v*'
+  # 也支持在 Actions 页面手动触发
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest      # Apple 芯片 runner，交叉打出 arm64 + x64
+            builder_args: --mac --arm64 --x64
+          - os: windows-latest
+            builder_args: --win
+          - os: ubuntu-latest
+            builder_args: --linux
+
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    permissions:
+      contents: write   # electron-builder 需要创建/上传 Release
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # 先为当前 tag 建一个草稿 Release，electron-builder 会把安装包
+      # 传进草稿并发布（官方推荐流程）
+      - name: Create draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+
+      - name: Build & publish
+        run: npx electron-builder ${{ matrix.builder_args }} --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

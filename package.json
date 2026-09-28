@@ -45,29 +45,35 @@
     },
     "publish": [
       {
-        "provider": "generic",
-        "url": "https://gitee.com/phpxcn/devkit/releases/download/v${version}/"
+        "provider": "github",
+        "owner": "phpxcn",
+        "repo": "devkit"
       }
     ],
     "mac": {
       "category": "public.app-category.developer-tools",
       "target": [
-        "dmg"
+        "dmg",
+        "zip"
       ],
-      "icon": "assets/icons/icon.icns"
+      "icon": "assets/icons/icon.icns",
+      "artifactName": "DevKit-${version}-mac-${arch}.${ext}"
     },
     "win": {
       "target": [
         "nsis"
       ],
-      "icon": "assets/icons/icon.png"
+      "icon": "assets/icons/icon.png",
+      "artifactName": "DevKit-${version}-win-${arch}.${ext}"
     },
     "linux": {
       "target": [
-        "deb"
+        "deb",
+        "AppImage"
       ],
       "icon": "assets/icons/icon.png",
-      "category": "Development"
+      "category": "Development",
+      "artifactName": "DevKit-${version}-linux-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
