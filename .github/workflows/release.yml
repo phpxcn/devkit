@@ -1,16 +1,30 @@
 name: Release Build
-# v2: 重新提交以触发 GitHub 对本文件的登记扫描
+# v3: 拆分建草稿步骤，避免三个平台 job 并发操作同一 Release 的竞态
 
-# 打 tag 即触发：git tag v1.2.1 && git push origin v1.2.1
+# 打 tag 即触发：git tag v1.2.2 && git push origin v1.2.2
 on:
   push:
     tags:
       - 'v*'
-  # 也支持在 Actions 页面手动触发
-  workflow_dispatch:
 
 jobs:
+  # 第一步（单独 job）：为本次 tag 创建草稿 Release，只执行一次
+  draft:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          draft: true
+          generate_release_notes: true
+
   build:
+    needs: draft   # 确保草稿建好后三个平台才开始构建，消除并发竞态
     strategy:
       fail-fast: false
       matrix:
@@ -39,14 +53,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 先为当前 tag 建一个草稿 Release，electron-builder 会把安装包
-      # 传进草稿并发布（官方推荐流程）
-      - name: Create draft release
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: true
-          generate_release_notes: true
-
+      # electron-builder 会把安装包上传进 draft job 建好的草稿并发布
       - name: Build & publish
         run: npx electron-builder ${{ matrix.builder_args }} --publish always
         env:
