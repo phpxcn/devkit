@@ -157,14 +157,14 @@ npm run build-win
 npm run build-linux
 ```
 
-发布新版本只需两步，GitHub Actions 会自动完成三平台打包并发布到 Releases：
+<!-- 发布新版本只需两步，GitHub Actions 会自动完成三平台打包并发布到 Releases：
 
 ```bash
 npm version patch          # 1.2.0 → 1.2.1，自动生成 commit 与 tag
 git push origin main --tags # 推送 tag 触发 CI
 ```
 
-CI 配置见 [`.github/workflows/release.yml`](.github/workflows/release.yml)：推送到 `v*` tag 时，`macos-latest`（arm64 + x64）、`windows-latest`、`ubuntu-latest` 三个任务并行构建，产物由 `electron-builder` 直接上传并发布到 GitHub Releases，用户在 Releases 页面即可下载。
+CI 配置见 [`.github/workflows/release.yml`](.github/workflows/release.yml)：推送到 `v*` tag 时，`macos-latest`（arm64 + x64）、`windows-latest`、`ubuntu-latest` 三个任务并行构建，产物由 `electron-builder` 直接上传并发布到 GitHub Releases，用户在 Releases 页面即可下载。 -->
 
 > 国内网络下 `npm install` 可能拉取 Electron 超时，本地构建前可参考上方「启动与开发」配置 `.npmrc` 镜像。
 

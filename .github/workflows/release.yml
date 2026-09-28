@@ -1,4 +1,5 @@
 name: Release Build
+# v2: 重新提交以触发 GitHub 对本文件的登记扫描
 
 # 打 tag 即触发：git tag v1.2.1 && git push origin v1.2.1
 on:
