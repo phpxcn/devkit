@@ -1,0 +1,37 @@
+name: Release Diagnostics
+
+# 临时诊断工作流：列出所有 Release 及附件，定位上传去向。用完即删
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: List all releases and assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "===== 所有 Release（含草稿）====="
+          curl -s -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/releases?per_page=100" \
+            | node -e '
+              let d="";
+              process.stdin.on("data",c=>d+=c).on("end",()=>{
+                const rels = JSON.parse(d);
+                for (const r of rels) {
+                  console.log(`\n== id:${r.id} tag:${r.tag_name} draft:${r.draft} published:${r.published_at}`);
+                  console.log(`   name:${r.name}  upload_url:${r.upload_url}`);
+                  for (const a of r.assets) console.log(`   asset: ${a.name} (${Math.round(a.size/1048576)}MB, ${a.created_at})`);
+                  if (!r.assets.length) console.log("   (无附件)");
+                }
+              });'
+          echo "===== 仓库 releases 总览 ====="
+          curl -s -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/releases" \
+            | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{console.log("total:",JSON.parse(d).length)})'
