@@ -2,6 +2,19 @@
 
 DevKit 是一款基于 Electron 构建的强大开发者工具箱应用。它集成了多种日常开发中高频使用的工具，旨在通过直观的界面和高效的交互，提升开发者的工作效率。
 
+## 📸 界面预览
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/json-format.png" width="420" alt="JSON 格式化"/><br/><b>JSON 格式化 / 校验</b></td>
+    <td align="center"><img src="docs/screenshots/json-diff.png" width="420" alt="JSON 对比"/><br/><b>JSON 差异对比</b></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/markdown-pdf.png" width="420" alt="Markdown 转 PDF"/><br/><b>Markdown 转 PDF（实时预览）</b></td>
+    <td align="center"><img src="docs/screenshots/frontend-color.png" width="420" alt="颜色格式转换"/><br/><b>前端小工具集 · 颜色转换</b></td>
+  </tr>
+</table>
+
 ## ✨ 核心特性
 
 ### 📝 JSON 工具 (JSON Tool)
