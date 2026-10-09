@@ -161,6 +161,11 @@ const ToolRegistry = {
         view: './src/tools/MarkdownPdfTool/view.html',
         module: './src/tools/MarkdownPdfTool/module.js'
     },
+    'pdf-toolbox': {
+        name: 'PDF 工具箱',
+        view: './src/tools/PdfToolbox/view.html',
+        module: './src/tools/PdfToolbox/module.js'
+    },
     'settings-tool': {
         name: '系统设置',
         view: './src/tools/SettingsTool/view.html',

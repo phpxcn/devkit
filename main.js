@@ -1,5 +1,8 @@
 const { app, BrowserWindow, ipcMain, dialog, clipboard, Menu, shell } = require('electron');
 const path = require('path');
+const fs = require('fs');
+const url = require('url');
+const { spawn, spawnSync } = require('child_process');
 const { autoUpdater } = require('electron-updater');
 
 let mainWindow = null;
@@ -152,13 +155,113 @@ ipcMain.handle('md-to-pdf', async (event, htmlContent, options) => {
     webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true }
   });
 
+  let tmpHtmlPath = null;
   try {
-    // 使用 base64 data URL 加载, 规避文件落盘与编码问题
-    const encoded = Buffer.from(htmlContent, 'utf8').toString('base64');
-    await pdfWindow.loadURL('data:text/html;base64,' + encoded);
-    // loadURL 在页面加载完成后 resolve; printToPDF 会等待渲染就绪
+    // 写临时 HTML 文件再 loadFile：data URL 有 2MB 上限，含内嵌图片的 HTML 会超限导致 ERR_INVALID_URL
+    tmpHtmlPath = path.join(app.getPath('temp'), `devkit-print-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.html`);
+    fs.writeFileSync(tmpHtmlPath, htmlContent, 'utf8');
+    await pdfWindow.loadFile(tmpHtmlPath);
+    // loadFile 在页面加载完成后 resolve; printToPDF 会等待渲染就绪
     const pdfData = await pdfWindow.webContents.printToPDF(printOptions);
     return pdfData;
+  } finally {
+    pdfWindow.destroy();
+    if (tmpHtmlPath) { try { fs.unlinkSync(tmpHtmlPath); } catch (_) {} }
+  }
+});
+
+// --- PDF 工具箱: 探测 LibreOffice 可执行路径 ---
+// 缓存探测结果避免重复调用 which/where
+let libreofficePathCache = undefined; // undefined=未探测, string=路径, null=不存在
+function detectLibreOfficePath() {
+  if (libreofficePathCache !== undefined) return libreofficePathCache;
+
+  // macOS 额外检查固定安装路径
+  if (process.platform === 'darwin') {
+    const macPath = '/Applications/LibreOffice.app/Contents/MacOS/soffice';
+    if (fs.existsSync(macPath)) {
+      libreofficePathCache = macPath;
+      return libreofficePathCache;
+    }
+  }
+
+  // 通过 which(mac/linux) 或 where(win) 探测 PATH 中的命令
+  const cmd = process.platform === 'win32' ? 'where' : 'which';
+  const names = process.platform === 'win32'
+    ? ['soffice.exe', 'libreoffice.exe']
+    : ['libreoffice', 'soffice'];
+  for (const name of names) {
+    const r = spawnSync(cmd, [name], { encoding: 'utf8' });
+    if (r.status === 0) {
+      const out = (r.stdout || '').trim().split(/\r?\n/)[0];
+      if (out) {
+        libreofficePathCache = out;
+        return libreofficePathCache;
+      }
+    }
+  }
+
+  libreofficePathCache = null;
+  return libreofficePathCache;
+}
+
+ipcMain.handle('pdf-detect-libreoffice', async () => {
+  return detectLibreOfficePath();
+});
+
+// --- PDF 工具箱: Office 文件转 PDF (调用 LibreOffice headless) ---
+ipcMain.handle('office-to-pdf', async (event, filePath) => {
+  const sofficePath = detectLibreOfficePath();
+  if (!sofficePath) {
+    return { ok: false, error: '未检测到 LibreOffice，无法转换 Office 文件。请安装 LibreOffice：https://www.libreoffice.org/download/' };
+  }
+
+  const tmpDir = app.getPath('temp');
+  // -env:UserInstallation 指定独立配置目录, 避免与已运行的 LibreOffice 单实例锁冲突
+  const profileDir = path.join(tmpDir, 'lo-profile-' + Date.now());
+  const args = [
+    '--headless',
+    '-env:UserInstallation=file://' + profileDir,
+    '--convert-to', 'pdf',
+    '--outdir', tmpDir,
+    filePath
+  ];
+
+  return new Promise((resolve) => {
+    const child = spawn(sofficePath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+    let stderr = '';
+    child.stderr.on('data', (d) => { stderr += d.toString(); });
+
+    child.on('close', () => {
+      const outPath = path.join(tmpDir, path.basename(filePath, path.extname(filePath)) + '.pdf');
+      if (fs.existsSync(outPath)) {
+        resolve({ ok: true, outPath });
+      } else {
+        resolve({ ok: false, error: '转换失败，未生成 PDF' + (stderr.trim() ? '（' + stderr.trim() + '）' : '') });
+      }
+    });
+
+    child.on('error', (err) => {
+      resolve({ ok: false, error: '调用 LibreOffice 失败：' + err.message });
+    });
+  });
+});
+
+// --- PDF 工具箱: 通过隐藏窗口解密 PDF (复用 Chromium 原生密码框 + printToPDF) ---
+ipcMain.handle('pdf-decrypt-via-window', async (event, filePath) => {
+  const pdfWindow = new BrowserWindow({
+    show: false,
+    webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true }
+  });
+
+  try {
+    // file:// 协议加载本地 PDF; 加密 PDF 会触发 Chromium 原生密码输入框, 用户输入后页面加载完成
+    await pdfWindow.loadURL(url.pathToFileURL(filePath).href);
+    // printToPDF 输出无密码的 PDF 字节
+    const pdfData = await pdfWindow.webContents.printToPDF({ pageSize: 'A4', printBackground: true });
+    return Buffer.from(pdfData);
+  } catch (e) {
+    throw new Error('用户取消或密码错误');
   } finally {
     pdfWindow.destroy();
   }

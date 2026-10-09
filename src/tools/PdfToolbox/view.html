@@ -1,0 +1,67 @@
+<div class="pdf-toolbox-root" style="display:flex; flex-direction:column; height:calc(100vh - 140px); gap:12px;">
+
+  <!-- 顶部 Tab 条：3 组 12 项（常驻不滚动） -->
+  <div class="format-tabs" id="pdf-format-tabs" style="flex-shrink:0;">
+    <span class="tab-group-label">转换</span>
+    <div class="tab-item active" data-tab="pdf2word">PDF 转 Word</div>
+    <div class="tab-item" data-tab="pdf2excel">PDF 转 Excel</div>
+    <div class="tab-item" data-tab="pdf2ppt">PDF 转 PPT</div>
+    <div class="tab-item" data-tab="pdf2img">PDF 转图片</div>
+    <div class="tab-item" data-tab="office2pdf">Office 转 PDF</div>
+    <span class="tab-group-label">页面</span>
+    <div class="tab-item" data-tab="split">拆分 PDF</div>
+    <div class="tab-item" data-tab="merge">合并 PDF</div>
+    <div class="tab-item" data-tab="extract">提取页面</div>
+    <div class="tab-item" data-tab="delete">删除页面</div>
+    <span class="tab-group-label">安全</span>
+    <div class="tab-item" data-tab="compress">压缩 PDF</div>
+    <div class="tab-item" data-tab="encrypt">加密 PDF</div>
+    <div class="tab-item" data-tab="decrypt">解密 PDF</div>
+  </div>
+
+  <!-- 可滚动主体 -->
+  <div class="pdf-toolbox-scroll-wrapper" style="overflow-y:auto; flex:1 1 auto; padding-right:10px; padding-bottom:20px; display:flex; flex-direction:column; gap:12px;">
+
+    <!-- 单卡片：当前 tab 标题 + 选择文件 / 主体 -->
+    <div class="tool-card" style="margin-bottom: 0;">
+      <div class="card-header-fused" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; flex-wrap: wrap; gap: 8px;">
+        <div class="header-title" id="pdf-tab-title" style="margin: 0; font-size: 1.05rem; white-space: nowrap; flex-shrink: 0;">PDF 转 Word</div>
+        <div class="header-actions" style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary btn-sm" id="pdf-file-pick"><i class="icon" style="margin-right:4px;">📄</i> 选择文件</button>
+          <button class="btn btn-secondary btn-sm" id="pdf-clear-files">清空</button>
+        </div>
+      </div>
+      <div class="card-body-fused" style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+
+        <!-- 拖拽区 -->
+        <div id="pdf-drop-zone" class="pdf-drop-zone">
+          <div class="pdf-drop-inner">
+            <div class="pdf-drop-icon">⤓</div>
+            <div class="pdf-drop-text">拖入文件或点击「选择文件」</div>
+            <div class="pdf-drop-hint" id="pdf-drop-hint">支持单个 PDF 文件</div>
+          </div>
+        </div>
+
+        <!-- 已选文件列表 -->
+        <div id="pdf-file-list" class="pdf-file-list">
+          <div class="empty-state" style="padding: 8px; justify-content: flex-start;">尚未选择文件</div>
+        </div>
+
+        <!-- 选项面板（JS 动态注入） -->
+        <div id="pdf-options-container" class="pdf-options-container">
+          <div class="empty-state" style="padding: 8px; justify-content: flex-start;">无附加选项</div>
+        </div>
+
+        <!-- 执行按钮 -->
+        <div class="actions-bar" style="margin: 0; justify-content: flex-end;">
+          <button class="btn btn-primary" id="pdf-run">转为 Word</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 状态区 -->
+    <div id="pdf-status" class="pdf-status" style="font-size: 0.8rem; color: var(--text-dim); text-align: center; padding: 6px 10px; min-height: 22px;">就绪</div>
+
+  </div>
+</div>

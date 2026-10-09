@@ -11,4 +11,9 @@ window.electron = {
 
   // 处理外部链接
   openExternal: (url) => ipcRenderer.send('open-external', url),
+
+  // PDF 工具箱
+  detectLibreOffice: () => ipcRenderer.invoke('pdf-detect-libreoffice'),
+  officeToPdf: (filePath) => ipcRenderer.invoke('office-to-pdf', filePath),
+  pdfDecryptViaWindow: (filePath) => ipcRenderer.invoke('pdf-decrypt-via-window', filePath),
 };

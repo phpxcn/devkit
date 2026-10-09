@@ -71,6 +71,25 @@ DevKit 是一款基于 Electron 构建的强大开发者工具箱应用。它集
 - **中文友好**：基于 Electron 原生 `printToPDF`，完美渲染中文与 CJK 字体，无需额外字体文件
 - **所见即所得**：预览与最终 PDF 使用同一套样式表，输出结果与预览完全一致
 
+### 🧰 PDF 工具箱 (PDF Toolbox)
+一站式 PDF 处理工具，Tab 分组聚合 12 项能力，纯 JS 离线优先：
+- **格式转换**
+  - PDF → Word：提取文本生成 .docx（标题启发式）
+  - PDF → Excel：按坐标聚类文本/表格生成 .xlsx
+  - PDF → PPT：逐页渲染 PNG 全屏铺入幻灯片
+  - PDF → 图片：逐页渲染 PNG / JPG，可选 96/150/200 DPI，输出到目录
+  - Office → PDF：自动检测 LibreOffice 高质量转换；未安装时 Word/Excel 走纯 JS 降级（HTML → 原生 printToPDF），PPT 提示安装 LibreOffice
+- **页面操作**
+  - 拆分：每页一个 PDF / 按范围分组，统一 `1-3,5,8-10` 范围语法
+  - 合并：多文件选区拼接
+  - 提取页面：按范围抽出为新 PDF
+  - 删除页面：按范围剔除后输出
+- **安全优化**
+  - 压缩：可调 DPI + JPEG 质量 + 灰度，逐页重排（有损，类在线压缩器）
+  - 加密：用户密码 + 所有者密码 + 权限开关（打印/复制/修改/批注）
+  - 解密：优先 pdf-lib 密码重存，失败降级隐藏窗口 + Chromium 原生密码框 + printToPDF
+- **拖拽支持**：拖入文件即载入，自动按 tab 过滤扩展名
+
 ### ⏰ 时间戳工具 (Timestamp Tool)
 - 秒级 / 毫秒级时间戳双向转换
 - 本地时间与 ISO 格式
@@ -131,6 +150,8 @@ DevKit 是一款基于 Electron 构建的强大开发者工具箱应用。它集
   - `papaparse` - CSV 文件解析
   - `js-yaml` / `json5` - YAML / JSON5 格式转换
   - `marked` - Markdown 解析 (Markdown 转 PDF 工具)
+  - `pdf-lib` / `pdfjs-dist` - PDF 结构操作与渲染 (PDF 工具箱)
+  - `docx` / `pptxgenjs` / `mammoth` - Office 文档生成与解析 (PDF 工具箱)
   - `jspdf` / `jspdf-autotable` - PDF 导出支持
   - `crypto-js` - 加密解密
   - `codemirror` - 代码编辑器
@@ -216,6 +237,7 @@ DevKit/
 │       ├── TableTool/                  # 表格转换（含 style.css）
 │       ├── TimestampTool/              # 时间戳（含 core.js 核心逻辑）
 │       ├── MarkdownPdfTool/            # Markdown 转 PDF
+│       ├── PdfToolbox/                 # PDF 工具箱（含 style.css）
 │       ├── CryptoTool/                 # 加解密
 │       ├── PasswordTool/               # 随机密码
 │       └── SettingsTool/              # 系统设置
