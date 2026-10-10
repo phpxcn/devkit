@@ -2,7 +2,7 @@
   "name": "devkit",
   "productName": "工坊(DevKit)",
   "homepage": "https://gitee.com/phpxcn/devkit",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "description": "专业开发者的一站式效率工具箱",
   "main": "main.js",
   "scripts": {
@@ -51,7 +51,14 @@
     },
     "npmRebuild": false,
     "compression": "maximum",
-    "electronLanguages": ["en", "en-US", "zh_CN", "zh-CN", "zh_TW", "zh-TW"],
+    "electronLanguages": [
+      "en",
+      "en-US",
+      "zh_CN",
+      "zh-CN",
+      "zh_TW",
+      "zh-TW"
+    ],
     "files": [
       "!node_modules/pdfjs-dist/legacy",
       "!node_modules/pdfjs-dist/types",
