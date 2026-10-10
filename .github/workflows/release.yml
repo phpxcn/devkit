@@ -1,5 +1,5 @@
 name: Release Build
-# v3: 拆分建草稿步骤，避免三个平台 job 并发操作同一 Release 的竞态
+# v4: 构建完成后统一把 Draft Release 发布并设为最新
 
 on:
   push:
@@ -49,7 +49,6 @@ jobs:
           node-version: 20
           cache: npm
 
-      # 仅 Linux 需要：canvas 原生模块编译所需的图形库
       - name: Install Linux native build deps
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -71,3 +70,18 @@ jobs:
         run: npx electron-builder ${{ matrix.builder_args }} --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # 最后一步（单独 job）：三个平台都上传完成后，把 Draft 发布并设为最新
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Publish the draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          make_latest: true
+          generate_release_notes: true
