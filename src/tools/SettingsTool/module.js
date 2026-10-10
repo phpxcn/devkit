@@ -68,29 +68,14 @@ module.exports = {
             if (el && v) el.textContent = `版本 v${v} (Stable)`;
         });
 
-        // 更新失败兜底：显示浏览器手动下载入口
-        const showFallback = (show) => {
-            const box = document.getElementById('update-fallback-box');
-            if (box) box.style.display = show ? 'block' : 'none';
-        };
+        // 手动下载兜底：GitHub Releases 页（应用内检查失败时用户可自行前往）
         document.getElementById('update-fallback-link')?.addEventListener('click', (e) => {
             e.preventDefault();
-            window.electron.openExternal('https://gitee.com/phpxcn/devkit/releases');
+            window.electron.openExternal('https://github.com/phpxcn/devkit/releases/latest');
         });
 
-        // 按钮交互：真实调用主进程的 electron-updater 检查
+        // 按钮交互：查询 GitHub 最新版本，发现新版引导用户打开 Release 页手动下载
         const btn = document.getElementById('btn-check-update');
-        const $progBox = document.getElementById('update-progress-box');
-        const $progText = document.getElementById('update-progress-text');
-        const $progBar = document.getElementById('update-progress-bar');
-
-        const showProgress = (text, percent) => {
-            if (!$progBox) return;
-            $progBox.style.display = 'block';
-            if ($progText) $progText.textContent = text;
-            if ($progBar) $progBar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
-        };
-
         btn?.addEventListener('click', async () => {
             const original = btn.textContent;
             btn.disabled = true;
@@ -100,7 +85,9 @@ module.exports = {
                 if (res.ok && res.status === 'latest') {
                     alert(`当前已是最新版本! (v${res.version})`);
                 } else if (res.ok && res.status === 'available') {
-                    showProgress(`发现新版本 v${res.version}，正在下载…`, 0);
+                    if (confirm(`发现新版本 v${res.version}（当前 v${res.current || ''}），将打开 GitHub Releases 页面，请下载安装包覆盖安装。`)) {
+                        window.electron.openExternal('https://github.com/phpxcn/devkit/releases/latest');
+                    }
                 } else {
                     alert(`检查更新失败：${res.message}`);
                 }
@@ -108,20 +95,6 @@ module.exports = {
                 btn.disabled = false;
                 btn.textContent = original;
             }
-        });
-
-        // 订阅主进程更新事件：进度 / 下载完成（主进程会直接重启安装）/ 失败
-        window.electron.onUpdateProgress?.((p) => {
-            const mb = p.total ? ` (${(p.transferred / 1048576).toFixed(1)}/${(p.total / 1048576).toFixed(1)} MB)` : '';
-            showFallback(false);
-            showProgress(`正在下载更新… ${p.percent}%${mb}`, p.percent);
-        });
-        window.electron.onUpdateDownloaded?.(() => {
-            showProgress('下载完成，正在重启安装…', 100);
-        });
-        window.electron.onUpdateError?.((d) => {
-            showProgress(`更新失败：${d.message}`, 0);
-            showFallback(true);
         });
     },
 

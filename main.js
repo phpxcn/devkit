@@ -3,7 +3,11 @@ const path = require('path');
 const fs = require('fs');
 const url = require('url');
 const { spawn, spawnSync } = require('child_process');
-const { autoUpdater } = require('electron-updater');
+
+// GitHub Releases 检查更新：发现新版后打开发布页，由用户浏览器手动下载安装
+// （不做应用内自动下载安装，规避国内直连 GitHub 大文件超时问题）
+const RELEASES_URL = 'https://github.com/phpxcn/devkit/releases/latest';
+const RELEASE_API = 'https://api.github.com/repos/phpxcn/devkit/releases/latest';
 
 let mainWindow = null;
 
@@ -16,70 +20,73 @@ if (process.platform === 'darwin') {
 }
 
 /**
- * 自动更新配置
- * 进度/结果实时转发到设置页；下载完成直接重启安装，不再弹确认框
+ * 版本号比较：remote 是否比 local 新（逐段数字比较，保证 1.10.0 > 1.9.0）
  */
-function setupAutoUpdater() {
-  autoUpdater.autoDownload = true;
-  autoUpdater.autoInstallOnAppQuit = true;
+function isNewerVersion(remote, local) {
+  const r = String(remote).replace(/^v/, '').split('.').map(Number);
+  const l = String(local).replace(/^v/, '').split('.').map(Number);
+  for (let i = 0; i < 3; i++) {
+    if ((r[i] || 0) > (l[i] || 0)) return true;
+    if ((r[i] || 0) < (l[i] || 0)) return false;
+  }
+  return false;
+}
 
-  // 更新源：Gitee 国内直连（滚动 release "latest"，CI 从 GitHub 发布产物自动同步）
-  // setFeedURL 在运行时覆盖打包内置的 app-update.yml（GitHub 源）
-  autoUpdater.setFeedURL({
-    provider: 'generic',
-    url: 'https://gitee.com/phpxcn/devkit/releases/download/latest',
-    useMultipleRangeRequest: false
-  });
-
-  // 下载进度 → 设置页进度条
-  autoUpdater.on('download-progress', (p) => {
-    sendToMainWindow('update-progress', {
-      percent: Math.min(100, Math.round(p.percent || 0)),
-      transferred: p.transferred,
-      total: p.total
+/**
+ * 查询 GitHub 最新发布版本（匿名 API，10 秒超时兜底）
+ * 返回 { ok, status: 'latest'|'available', version } 或 { ok: false, message }
+ */
+async function checkGitHubRelease() {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+  try {
+    const resp = await fetch(RELEASE_API, {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'DevKit-Updater' }
     });
-  });
-
-  // 下载完成：立即重启安装（用户要求免确认）
-  autoUpdater.on('update-downloaded', () => {
-    sendToMainWindow('update-downloaded', {});
-    autoUpdater.quitAndInstall();
-  });
-
-  // 后台下载失败也要可见，避免用户干等
-  autoUpdater.on('error', (err) => {
-    sendToMainWindow('update-error', { message: err.message || String(err) });
-  });
+    if (!resp.ok) throw new Error(`GitHub API 响应异常 (${resp.status})`);
+    const data = await resp.json();
+    const version = String(data.tag_name || '').replace(/^v/, '');
+    if (!version) throw new Error('未能解析最新版本号');
+    if (isNewerVersion(version, app.getVersion())) {
+      return { ok: true, status: 'available', version, current: app.getVersion() };
+    }
+    return { ok: true, status: 'latest', version: app.getVersion() };
+  } catch (err) {
+    const msg = err.name === 'AbortError'
+      ? '连接 GitHub 超时，请稍后重试或点击下方链接手动前往下载页'
+      : (err.message || String(err));
+    return { ok: false, message: msg };
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /**
- * 向主窗口转发更新事件（窗口可能尚未创建或已销毁，需兜底）
+ * 启动后静默检查更新：发现新版弹窗询问，确认后打开 GitHub Releases 页面手动下载。
+ * 网络失败静默忽略，避免打扰用户（设置页可手动重查）。
  */
-function sendToMainWindow(channel, payload) {
-  const win = (mainWindow && !mainWindow.isDestroyed()) ? mainWindow : BrowserWindow.getAllWindows()[0];
-  if (win && !win.isDestroyed()) win.webContents.send(channel, payload);
-}
-
-/**
- * 手动检查更新（设置页“检查更新”按钮调用）：
- * 基于一次性事件监听，把 已最新 / 发现新版 / 出错 三种结果回传渲染进程
- */
-function checkForUpdatesOnce() {
-  return new Promise((resolve) => {
-    let settled = false;
-    const done = (r) => { if (!settled) { settled = true; resolve(r); } };
-    autoUpdater.once('update-not-available', () => done({ ok: true, status: 'latest', version: app.getVersion() }));
-    autoUpdater.once('update-available', (info) => done({ ok: true, status: 'available', version: info.version }));
-    autoUpdater.once('error', (err) => done({ ok: false, message: err.message || String(err) }));
-    autoUpdater.checkForUpdates().catch((err) => done({ ok: false, message: err.message || String(err) }));
+async function checkAndNotifyUpdate() {
+  const res = await checkGitHubRelease();
+  if (!res.ok || res.status !== 'available') return;
+  const win = (mainWindow && !mainWindow.isDestroyed()) ? mainWindow : undefined;
+  const r = await dialog.showMessageBox(win, {
+    type: 'info',
+    title: '发现新版本',
+    message: `发现新版本 v${res.version}（当前 v${app.getVersion()}）`,
+    detail: '将打开 GitHub Releases 页面，请下载安装包覆盖安装。',
+    buttons: ['前往下载', '以后再说'],
+    defaultId: 0,
+    cancelId: 1
   });
+  if (r.response === 0) shell.openExternal(RELEASES_URL);
 }
 
 ipcMain.handle('app:check-update', async () => {
   if (!app.isPackaged) {
-    return { ok: false, message: '开发模式下不支持自动更新，请使用安装版验证' };
+    return { ok: false, message: '开发模式下不支持检查更新，请使用安装版验证' };
   }
-  return checkForUpdatesOnce();
+  return checkGitHubRelease();
 });
 
 // 设置页“关于”显示的版本号：跟随 package.json version，无需手动改页面
@@ -144,15 +151,14 @@ if (!gotTheLock) {
 
     mainWindow.loadFile('index.html');
     
-    // 窗口加载后，如果是生产环境，检查更新
+    // 窗口加载后，如果是生产环境，静默检查更新（发现新版弹窗引导前往 GitHub 下载）
     if (app.isPackaged) {
-      autoUpdater.checkForUpdatesAndNotify();
+      checkAndNotifyUpdate();
     }
   }
 
   // --- 统一生命周期管理 ---
   app.whenReady().then(() => {
-    setupAutoUpdater();
     createWindow();
     createMenu();
 

@@ -78,19 +78,11 @@
               <button class="btn btn-secondary btn-sm" onclick="window.electron.openExternal('https://gitee.com/phpxcn/devkit')">访问 Gitee 仓库</button>
           </div>
 
-          <!-- 更新下载进度（发现新版本后显示） -->
-          <div id="update-progress-box" style="display: none; margin: 16px auto 0; max-width: 420px;">
-              <div id="update-progress-text" style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px; text-align: center;">正在下载更新…</div>
-              <div style="height: 6px; background: var(--surface-1); border-radius: 3px; overflow: hidden;">
-                  <div id="update-progress-bar" style="height: 100%; width: 0%; background: var(--accent-color); border-radius: 3px; transition: width 0.3s;"></div>
-              </div>
-          </div>
-
-          <!-- 更新失败兜底：应用内下载失败时，引导用浏览器手动下载覆盖安装 -->
-          <div id="update-fallback-box" style="display: none; margin: 16px auto 0; text-align: center; font-size: 0.8rem; color: var(--text-secondary);">
-              应用内下载失败？可改用浏览器
-              <a href="#" id="update-fallback-link" style="color: var(--accent-color); text-decoration: underline;">手动下载安装包</a>
-              （下载后覆盖安装即可）
+          <!-- 手动下载入口：应用内检查失败或偏好浏览器下载时使用 -->
+          <div style="margin-top: 16px; text-align: center; font-size: 0.8rem; color: var(--text-secondary);">
+              检查失败或下载不便？可前往
+              <a href="#" id="update-fallback-link" style="color: var(--accent-color); text-decoration: underline;">GitHub Releases</a>
+              手动下载安装包（覆盖安装即可）
           </div>
       </div>
     </div>

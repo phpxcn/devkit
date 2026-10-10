@@ -1,5 +1,6 @@
 name: Release Build
-# v4: 构建完成后统一把 Draft Release 发布并设为最新
+# v5: 三平台构建并发布到 GitHub Releases（应用内更新走 GitHub API 检查 + 浏览器手动下载，
+# 不再同步附件到 Gitee；仓库代码由本地 push 双远端同步 Gitee）
 
 on:
   push:
@@ -85,71 +86,3 @@ jobs:
           draft: false
           make_latest: true
           generate_release_notes: true
-
-  # GitHub 发布完成后，把产物同步到 Gitee（代码由本地 push 双远端同步，这里只管 release 附件）：
-  # Gitee 附件单文件上限 100MB → 超限的安装包跳过，并把对应平台 latest*.yml 里的
-  # 相对 url 改写为 GitHub 绝对地址，保证任何平台的自动更新都不会断链（见 main.js setFeedURL）。
-  # 需要 GitHub Secrets：GITEE_TOKEN（Gitee 私人令牌，勾选 projects 权限）
-  sync-gitee:
-    needs: publish
-    runs-on: ubuntu-latest
-    env:
-      GITEE_REPO: ${{ github.repository }}
-      VERSION: ${{ github.ref_name }}
-      GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
-    steps:
-      - name: Download GitHub release assets
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mkdir -p assets
-          gh release download "${VERSION}" --repo "${{ github.repository }}" --dir assets
-
-      - name: "Upload to Gitee rolling release (tag: latest, files <= 100MB)"
-        run: |
-          set -e
-          API="https://gitee.com/api/v5/repos/${GITEE_REPO}/releases"
-          BASE="https://github.com/${GITEE_REPO}/releases/download/${VERSION}"
-          LIMIT=100000000   # Gitee 单文件 100MB 上限（按 10^6 字节保守取值）
-
-          # 标记各平台是否有超限安装包
-          MAC_OVER=0; WIN_OVER=0; LINUX_OVER=0
-          for f in assets/*; do
-            n=$(basename "$f"); bytes=$(stat -c%s "$f")
-            case "$n" in
-              *-mac-*)  [ "$bytes" -ge "$LIMIT" ] && MAC_OVER=1 ;;
-              *-win-*)  [ "$bytes" -ge "$LIMIT" ] && WIN_OVER=1 ;;
-              *linux*)  [ "$bytes" -ge "$LIMIT" ] && LINUX_OVER=1 ;;
-            esac
-          done
-
-          # 超限平台的 yml：相对 url 改写为 GitHub 绝对地址（更新检查走 Gitee，大文件下载回源 GitHub）
-          [ "$MAC_OVER" = 1 ] && sed -E "s#^( *url: )#\1${BASE}/#" assets/latest-mac.yml > assets/latest-mac.yml.new && mv assets/latest-mac.yml.new assets/latest-mac.yml && echo "mac 安装包超限，latest-mac.yml 已指向 GitHub"
-          [ "$WIN_OVER" = 1 ] && sed -E "s#^( *url: )#\1${BASE}/#" assets/latest.yml > assets/latest.yml.new && mv assets/latest.yml.new assets/latest.yml && echo "win 安装包超限，latest.yml 已指向 GitHub"
-          [ "$LINUX_OVER" = 1 ] && sed -E "s#^( *url: )#\1${BASE}/#" assets/latest-linux.yml > assets/latest-linux.yml.new && mv assets/latest-linux.yml.new assets/latest-linux.yml && echo "linux 安装包超限，latest-linux.yml 已指向 GitHub"
-
-          # 删除旧的 latest release（tag 保留不动，feed URL 不含 SHA，无影响）
-          OLD_ID=$(curl -sf "$API/tags/latest?access_token=${GITEE_TOKEN}" | jq -r '.id // empty')
-          if [ -n "$OLD_ID" ]; then
-            curl -s -X DELETE "$API/$OLD_ID?access_token=${GITEE_TOKEN}" > /dev/null
-          fi
-
-          # 创建 latest release（tag 不存在时以 master 为目标自动创建）
-          NEW_ID=$(curl -sf -X POST "$API?access_token=${GITEE_TOKEN}" \
-            -H "Content-Type: application/json" \
-            -d "{\"tag_name\":\"latest\",\"target_commitish\":\"master\",\"name\":\"DevKit ${VERSION}（国内下载源）\",\"prerelease\":false,\"body\":\"滚动更新源：发布版本 ${VERSION}。win 安装包直接下载；mac/linux 安装包超过 Gitee 100MB 限制，请到 GitHub Releases 下载。\"}" \
-            | jq -r '.id // empty')
-          if [ -z "$NEW_ID" ]; then echo "Gitee 创建 release 失败"; exit 1; fi
-
-          # 上传未超限的产物（yml/blockmap 很小，始终上传）
-          for f in assets/*; do
-            n=$(basename "$f"); bytes=$(stat -c%s "$f")
-            if [ "$bytes" -ge "$LIMIT" ]; then
-              echo "跳过（超 100MB）: $n"
-              continue
-            fi
-            echo "上传 $n"
-            curl -sf -X POST "$API/$NEW_ID/attach_files?access_token=${GITEE_TOKEN}" -F "file=@$f" > /dev/null \
-              || { echo "上传失败: $n"; exit 1; }
-          done
-          echo "Gitee latest 同步完成"

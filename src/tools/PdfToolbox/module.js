@@ -2,7 +2,7 @@ const { ipcRenderer } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const { PDFDocument, degrees } = require('pdf-lib');
-const pdfjs = require('pdfjs-dist/legacy/build/pdf.js');
+const pdfjs = require('pdfjs-dist/build/pdf.js');
 // 配置 pdfjs worker：用 Blob URL 装载 worker 源码，确保渲染进程能正确解码/绘制图片 XObject
 // （直接 require worker bundle 得到的是模块对象而非 URL，会导致 worker 加载失败、图片渲染为空白）
 try {

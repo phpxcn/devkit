@@ -12,7 +12,7 @@ window.electron = {
   // 处理外部链接
   openExternal: (url) => ipcRenderer.send('open-external', url),
 
-  // 检查更新（返回 { ok, status, version/message }）
+  // 检查更新（返回 { ok, status, version/message }，发现新版由页面引导前往 GitHub 下载）
   checkForUpdate: () => ipcRenderer.invoke('app:check-update'),
 
   // 应用版本号（设置页“关于”用，跟随 package.json version）
@@ -22,9 +22,4 @@ window.electron = {
   detectLibreOffice: () => ipcRenderer.invoke('pdf-detect-libreoffice'),
   officeToPdf: (filePath) => ipcRenderer.invoke('office-to-pdf', filePath),
   pdfDecryptViaWindow: (filePath) => ipcRenderer.invoke('pdf-decrypt-via-window', filePath),
-
-  // 自动更新事件（主进程 → 设置页）
-  onUpdateProgress: (cb) => ipcRenderer.on('update-progress', (_e, data) => cb(data)),
-  onUpdateDownloaded: (cb) => ipcRenderer.on('update-downloaded', (_e, data) => cb(data)),
-  onUpdateError: (cb) => ipcRenderer.on('update-error', (_e, data) => cb(data)),
 };
