@@ -23,6 +23,14 @@ function setupAutoUpdater() {
   autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
 
+  // 更新源：Gitee 国内直连（滚动 release "latest"，CI 从 GitHub 发布产物自动同步）
+  // setFeedURL 在运行时覆盖打包内置的 app-update.yml（GitHub 源）
+  autoUpdater.setFeedURL({
+    provider: 'generic',
+    url: 'https://gitee.com/phpxcn/devkit/releases/download/latest',
+    useMultipleRangeRequest: false
+  });
+
   // 下载进度 → 设置页进度条
   autoUpdater.on('download-progress', (p) => {
     sendToMainWindow('update-progress', {

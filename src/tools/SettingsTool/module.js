@@ -68,6 +68,16 @@ module.exports = {
             if (el && v) el.textContent = `版本 v${v} (Stable)`;
         });
 
+        // 更新失败兜底：显示浏览器手动下载入口
+        const showFallback = (show) => {
+            const box = document.getElementById('update-fallback-box');
+            if (box) box.style.display = show ? 'block' : 'none';
+        };
+        document.getElementById('update-fallback-link')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.electron.openExternal('https://gitee.com/phpxcn/devkit/releases');
+        });
+
         // 按钮交互：真实调用主进程的 electron-updater 检查
         const btn = document.getElementById('btn-check-update');
         const $progBox = document.getElementById('update-progress-box');
@@ -103,6 +113,7 @@ module.exports = {
         // 订阅主进程更新事件：进度 / 下载完成（主进程会直接重启安装）/ 失败
         window.electron.onUpdateProgress?.((p) => {
             const mb = p.total ? ` (${(p.transferred / 1048576).toFixed(1)}/${(p.total / 1048576).toFixed(1)} MB)` : '';
+            showFallback(false);
             showProgress(`正在下载更新… ${p.percent}%${mb}`, p.percent);
         });
         window.electron.onUpdateDownloaded?.(() => {
@@ -110,6 +121,7 @@ module.exports = {
         });
         window.electron.onUpdateError?.((d) => {
             showProgress(`更新失败：${d.message}`, 0);
+            showFallback(true);
         });
     },
 

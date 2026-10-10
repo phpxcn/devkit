@@ -85,6 +85,13 @@
                   <div id="update-progress-bar" style="height: 100%; width: 0%; background: var(--accent-color); border-radius: 3px; transition: width 0.3s;"></div>
               </div>
           </div>
+
+          <!-- 更新失败兜底：应用内下载失败时，引导用浏览器手动下载覆盖安装 -->
+          <div id="update-fallback-box" style="display: none; margin: 16px auto 0; text-align: center; font-size: 0.8rem; color: var(--text-secondary);">
+              应用内下载失败？可改用浏览器
+              <a href="#" id="update-fallback-link" style="color: var(--accent-color); text-decoration: underline;">手动下载安装包</a>
+              （下载后覆盖安装即可）
+          </div>
       </div>
     </div>
   
