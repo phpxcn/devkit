@@ -2,7 +2,7 @@
   "name": "devkit",
   "productName": "工坊(DevKit)",
   "homepage": "https://gitee.com/phpxcn/devkit",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "description": "专业开发者的一站式效率工具箱",
   "main": "main.js",
   "scripts": {
