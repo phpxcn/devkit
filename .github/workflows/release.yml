@@ -1,7 +1,6 @@
 name: Release Build
 # v3: 拆分建草稿步骤，避免三个平台 job 并发操作同一 Release 的竞态
 
-# 打 tag 即触发：git tag v1.2.2 && git push origin v1.2.2
 on:
   push:
     tags:
@@ -24,12 +23,12 @@ jobs:
           generate_release_notes: true
 
   build:
-    needs: draft   # 确保草稿建好后三个平台才开始构建，消除并发竞态
+    needs: draft
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest      # Apple 芯片 runner，交叉打出 arm64 + x64
+          - os: macos-latest
             builder_args: --mac --arm64 --x64
           - os: windows-latest
             builder_args: --win
@@ -40,7 +39,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     permissions:
-      contents: write   # electron-builder 需要创建/上传 Release
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -50,10 +49,24 @@ jobs:
           node-version: 20
           cache: npm
 
+      # 仅 Linux 需要：canvas 原生模块编译所需的图形库
+      - name: Install Linux native build deps
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            libcairo2-dev \
+            libpango1.0-dev \
+            libjpeg-dev \
+            libgif-dev \
+            librsvg2-dev \
+            libpixman-1-dev \
+            pkg-config
+
       - name: Install dependencies
         run: npm ci
 
-      # electron-builder 会把安装包上传进 draft job 建好的草稿并发布
       - name: Build & publish
         run: npx electron-builder ${{ matrix.builder_args }} --publish always
         env:
