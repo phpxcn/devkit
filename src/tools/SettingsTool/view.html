@@ -64,7 +64,7 @@
       <div class="card-body-fused" style="padding: 24px; text-align: center;">
           <img src="assets/icons/icon.png" style="width: 80px; height: 80px; margin-bottom: 16px; filter: drop-shadow(0 0 10px var(--accent-color));" alt="Logo">
           <h2 style="font-size: 1.4rem; margin-bottom: 6px;">DevKit 工具工坊</h2>
-          <div style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px;">版本 v1.2.0 (Stable)</div>
+          <div id="app-version" style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px;">版本 v–</div>
           
           <div style="background: var(--surface-0); border-radius: 12px; padding: 20px; text-align: left; line-height: 1.6; font-size: 0.9rem; color: var(--text-secondary); border: 1px solid var(--border-color);">
               <p>DevKit 是一款专为开发者设计的离线全能工具箱，致力于提供最流畅的交互体验和最专业的转换精度。所有操作均在本地完成，保护您的数据安全。</p>
@@ -76,6 +76,14 @@
           <div style="margin-top: 24px; display: flex; justify-content: center; gap: 16px;">
               <button class="btn btn-secondary btn-sm" id="btn-check-update">检查更新</button>
               <button class="btn btn-secondary btn-sm" onclick="window.electron.openExternal('https://gitee.com/phpxcn/devkit')">访问 Gitee 仓库</button>
+          </div>
+
+          <!-- 更新下载进度（发现新版本后显示） -->
+          <div id="update-progress-box" style="display: none; margin: 16px auto 0; max-width: 420px;">
+              <div id="update-progress-text" style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px; text-align: center;">正在下载更新…</div>
+              <div style="height: 6px; background: var(--surface-1); border-radius: 3px; overflow: hidden;">
+                  <div id="update-progress-bar" style="height: 100%; width: 0%; background: var(--accent-color); border-radius: 3px; transition: width 0.3s;"></div>
+              </div>
           </div>
       </div>
     </div>

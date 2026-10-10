@@ -15,8 +15,16 @@ window.electron = {
   // 检查更新（返回 { ok, status, version/message }）
   checkForUpdate: () => ipcRenderer.invoke('app:check-update'),
 
+  // 应用版本号（设置页“关于”用，跟随 package.json version）
+  getAppVersion: () => ipcRenderer.invoke('app:get-version'),
+
   // PDF 工具箱
   detectLibreOffice: () => ipcRenderer.invoke('pdf-detect-libreoffice'),
   officeToPdf: (filePath) => ipcRenderer.invoke('office-to-pdf', filePath),
   pdfDecryptViaWindow: (filePath) => ipcRenderer.invoke('pdf-decrypt-via-window', filePath),
+
+  // 自动更新事件（主进程 → 设置页）
+  onUpdateProgress: (cb) => ipcRenderer.on('update-progress', (_e, data) => cb(data)),
+  onUpdateDownloaded: (cb) => ipcRenderer.on('update-downloaded', (_e, data) => cb(data)),
+  onUpdateError: (cb) => ipcRenderer.on('update-error', (_e, data) => cb(data)),
 };

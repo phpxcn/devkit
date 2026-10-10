@@ -62,8 +62,25 @@ module.exports = {
             fontSelect.dispatchEvent(event);
         }
 
+        // “关于”版本号：从主进程取 package.json 的 version，避免页面写死
+        window.electron.getAppVersion?.().then(v => {
+            const el = document.getElementById('app-version');
+            if (el && v) el.textContent = `版本 v${v} (Stable)`;
+        });
+
         // 按钮交互：真实调用主进程的 electron-updater 检查
         const btn = document.getElementById('btn-check-update');
+        const $progBox = document.getElementById('update-progress-box');
+        const $progText = document.getElementById('update-progress-text');
+        const $progBar = document.getElementById('update-progress-bar');
+
+        const showProgress = (text, percent) => {
+            if (!$progBox) return;
+            $progBox.style.display = 'block';
+            if ($progText) $progText.textContent = text;
+            if ($progBar) $progBar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+        };
+
         btn?.addEventListener('click', async () => {
             const original = btn.textContent;
             btn.disabled = true;
@@ -73,7 +90,7 @@ module.exports = {
                 if (res.ok && res.status === 'latest') {
                     alert(`当前已是最新版本! (v${res.version})`);
                 } else if (res.ok && res.status === 'available') {
-                    alert(`发现新版本 v${res.version}，正在后台下载，完成后会弹窗提示重启安装。`);
+                    showProgress(`发现新版本 v${res.version}，正在下载…`, 0);
                 } else {
                     alert(`检查更新失败：${res.message}`);
                 }
@@ -81,6 +98,18 @@ module.exports = {
                 btn.disabled = false;
                 btn.textContent = original;
             }
+        });
+
+        // 订阅主进程更新事件：进度 / 下载完成（主进程会直接重启安装）/ 失败
+        window.electron.onUpdateProgress?.((p) => {
+            const mb = p.total ? ` (${(p.transferred / 1048576).toFixed(1)}/${(p.total / 1048576).toFixed(1)} MB)` : '';
+            showProgress(`正在下载更新… ${p.percent}%${mb}`, p.percent);
+        });
+        window.electron.onUpdateDownloaded?.(() => {
+            showProgress('下载完成，正在重启安装…', 100);
+        });
+        window.electron.onUpdateError?.((d) => {
+            showProgress(`更新失败：${d.message}`, 0);
         });
     },
 

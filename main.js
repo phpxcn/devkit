@@ -17,22 +17,39 @@ if (process.platform === 'darwin') {
 
 /**
  * 自动更新配置
+ * 进度/结果实时转发到设置页；下载完成直接重启安装，不再弹确认框
  */
 function setupAutoUpdater() {
-  autoUpdater.autoDownload = true; 
-  autoUpdater.autoInstallOnAppQuit = true; 
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
 
-  autoUpdater.on('update-downloaded', (info) => {
-    dialog.showMessageBox({
-      type: 'info',
-      title: '更新准备就绪',
-      message: `检测到新版本 ${info.version}，已下载完成。`,
-      detail: '是否现在重启并安装更新？',
-      buttons: ['下次启动时安装', '立即重启安装']
-    }).then(result => {
-      if (result.response === 1) autoUpdater.quitAndInstall();
+  // 下载进度 → 设置页进度条
+  autoUpdater.on('download-progress', (p) => {
+    sendToMainWindow('update-progress', {
+      percent: Math.min(100, Math.round(p.percent || 0)),
+      transferred: p.transferred,
+      total: p.total
     });
   });
+
+  // 下载完成：立即重启安装（用户要求免确认）
+  autoUpdater.on('update-downloaded', () => {
+    sendToMainWindow('update-downloaded', {});
+    autoUpdater.quitAndInstall();
+  });
+
+  // 后台下载失败也要可见，避免用户干等
+  autoUpdater.on('error', (err) => {
+    sendToMainWindow('update-error', { message: err.message || String(err) });
+  });
+}
+
+/**
+ * 向主窗口转发更新事件（窗口可能尚未创建或已销毁，需兜底）
+ */
+function sendToMainWindow(channel, payload) {
+  const win = (mainWindow && !mainWindow.isDestroyed()) ? mainWindow : BrowserWindow.getAllWindows()[0];
+  if (win && !win.isDestroyed()) win.webContents.send(channel, payload);
 }
 
 /**
@@ -56,6 +73,9 @@ ipcMain.handle('app:check-update', async () => {
   }
   return checkForUpdatesOnce();
 });
+
+// 设置页“关于”显示的版本号：跟随 package.json version，无需手动改页面
+ipcMain.handle('app:get-version', () => app.getVersion());
 
 // --- 核心修复 1：单例锁 (避免多进程运行) ---
 const gotTheLock = app.requestSingleInstanceLock();
