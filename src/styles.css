@@ -481,6 +481,17 @@ body {
   border-color: var(--accent-color);
 }
 
+/* 裸 <textarea> 兜底：未挂样式类的多行文本框跟随主题，避免在非深色皮肤下露白底 */
+textarea {
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  outline: none;
+}
+textarea:focus {
+  border-color: var(--accent-color);
+}
+
 /* 选项卡 / 可选中小按钮 */
 .btn-tab,
 .opt-btn {

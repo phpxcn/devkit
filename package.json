@@ -49,6 +49,7 @@
     "directories": {
       "output": "release"
     },
+    "npmRebuild": false,
     "publish": [
       {
         "provider": "github",

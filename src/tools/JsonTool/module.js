@@ -17,7 +17,11 @@ if (!document.getElementById('cm-json-styles')) {
     style.id = 'cm-json-styles';
     // 强制编辑器宽高与搜索框样式
     style.innerHTML = css + `
-.CodeMirror { width: 100%; height: 100%; font-family: "JetBrains Mono", Consolas, monospace; font-size: 14px; position: absolute; top:0; left:0; bottom:0; right:0;}
+.CodeMirror { width: 100%; height: 100%; font-family: "JetBrains Mono", Consolas, monospace; font-size: 14px; position: absolute; top:0; left:0; bottom:0; right:0; background: var(--input-bg); color: var(--text-primary);}
+.CodeMirror-gutters { background: var(--bg-secondary); border-right: 1px solid var(--border-color); }
+.CodeMirror-linenumber { color: var(--text-dim); }
+.CodeMirror-cursor { border-left: 1px solid var(--text-primary); }
+.CodeMirror-selected { background: var(--surface-2) !important; }
 .json-search-container { display: flex; flex-direction: column; background: var(--bg-card); border-radius: 6px; padding: 2px 4px; border: 1px solid var(--border-color); transition: var(--transition); margin: 0 10px; min-width: 220px; }
 .search-main { display: flex; flex-direction: column; width: 100%; }
 .search-row, .replace-row { display: flex; align-items: center; justify-content: space-between; }
