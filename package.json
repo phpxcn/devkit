@@ -80,6 +80,7 @@
       ],
       "icon": "assets/icons/icon.png",
       "category": "Development",
+      "executableName": "DevKit",
       "artifactName": "DevKit-${version}-linux-${arch}.${ext}"
     },
     "nsis": {
