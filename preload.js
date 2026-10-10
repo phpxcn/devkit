@@ -12,6 +12,9 @@ window.electron = {
   // 处理外部链接
   openExternal: (url) => ipcRenderer.send('open-external', url),
 
+  // 检查更新（返回 { ok, status, version/message }）
+  checkForUpdate: () => ipcRenderer.invoke('app:check-update'),
+
   // PDF 工具箱
   detectLibreOffice: () => ipcRenderer.invoke('pdf-detect-libreoffice'),
   officeToPdf: (filePath) => ipcRenderer.invoke('office-to-pdf', filePath),

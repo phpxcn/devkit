@@ -35,6 +35,28 @@ function setupAutoUpdater() {
   });
 }
 
+/**
+ * 手动检查更新（设置页“检查更新”按钮调用）：
+ * 基于一次性事件监听，把 已最新 / 发现新版 / 出错 三种结果回传渲染进程
+ */
+function checkForUpdatesOnce() {
+  return new Promise((resolve) => {
+    let settled = false;
+    const done = (r) => { if (!settled) { settled = true; resolve(r); } };
+    autoUpdater.once('update-not-available', () => done({ ok: true, status: 'latest', version: app.getVersion() }));
+    autoUpdater.once('update-available', (info) => done({ ok: true, status: 'available', version: info.version }));
+    autoUpdater.once('error', (err) => done({ ok: false, message: err.message || String(err) }));
+    autoUpdater.checkForUpdates().catch((err) => done({ ok: false, message: err.message || String(err) }));
+  });
+}
+
+ipcMain.handle('app:check-update', async () => {
+  if (!app.isPackaged) {
+    return { ok: false, message: '开发模式下不支持自动更新，请使用安装版验证' };
+  }
+  return checkForUpdatesOnce();
+});
+
 // --- 核心修复 1：单例锁 (避免多进程运行) ---
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -80,12 +102,12 @@ if (!gotTheLock) {
       mainWindow = null;
     });
 
-    // 关于面板
+    // 关于面板（版本号跟随应用实际版本，不再写死）
     app.setAboutPanelOptions({
       applicationName: 'DevKit',
-      applicationVersion: '1.2.0',
+      applicationVersion: app.getVersion(),
       copyright: 'Copyright © 2026 phpxcn',
-      version: '1.2.0',
+      version: app.getVersion(),
       credits: '一个杂七杂八的工具包',
       authors: ['phpxcn'],
       website: 'https://gitee.com/phpxcn/devkit',

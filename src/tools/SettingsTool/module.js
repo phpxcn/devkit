@@ -62,9 +62,25 @@ module.exports = {
             fontSelect.dispatchEvent(event);
         }
 
-        // 按钮交互
-        document.getElementById('btn-check-update')?.addEventListener('click', () => {
-            alert('当前已是最新版本! (v1.2.0)');
+        // 按钮交互：真实调用主进程的 electron-updater 检查
+        const btn = document.getElementById('btn-check-update');
+        btn?.addEventListener('click', async () => {
+            const original = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '检查中…';
+            try {
+                const res = await window.electron.checkForUpdate();
+                if (res.ok && res.status === 'latest') {
+                    alert(`当前已是最新版本! (v${res.version})`);
+                } else if (res.ok && res.status === 'available') {
+                    alert(`发现新版本 v${res.version}，正在后台下载，完成后会弹窗提示重启安装。`);
+                } else {
+                    alert(`检查更新失败：${res.message}`);
+                }
+            } finally {
+                btn.disabled = false;
+                btn.textContent = original;
+            }
         });
     },
 
